@@ -1,0 +1,323 @@
+ar
+e### Variables
+@baseUrl = http://localhost:3000
+@apiUrl = {{baseUrl}}/api
+@authUrl = {{apiUrl}}/auth
+
+### Headers
+@contentType = Content-Type: application/json
+
+# Reset token - UPDATE THIS with fresh token from console logs after running forgot-password test
+@resetToken =
+
+# Access tokens for testing
+@customer1AccessToken = 
+@customer2AccessToken = 
+@adminAccessToken = 
+@jumaAccessToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImVtYWlsIjoibm92aWttdWxpcm81QGdtYWlsLmNvbSIsInJvbGUiOiJDVVNUT01FUiIsImlhdCI6MTc1MDc3NDI2OCwiZXhwIjoxNzUxMzc5MDY4fQ.8AFbt98Usa8yLOn2syGU_nHA0Qoh2kvqfB5h9gWdOko"
+
+###############################################################################
+# HEALTH CHECK
+###############################################################################
+
+### 1. Health Check
+GET {{baseUrl}}/health
+Accept: application/json
+
+###############################################################################
+# REGISTRATION TESTS
+###############################################################################
+
+### 2. Register New Customer User
+POST {{authUrl}}/register
+Content-Type: application/json
+
+{
+  "email": "novikmu@gmail.com",
+  "password": "obvious1"
+}
+
+### 3. Register New Customer User with Role Specified
+POST {{authUrl}}/register
+Content-Type: application/json
+
+{
+  "email": "customer2@test.com",
+  "password": "password123",
+  "role": "CUSTOMER"
+}
+
+### 4. Register New Admin User
+POST {{authUrl}}/register
+Content-Type: application/json
+
+{
+  "email": "admin@test.com",
+  "password": "adminpassword123",
+  "role": "ADMIN"
+}
+
+### 5. Try to Register with Duplicate Email (Should Fail)
+POST {{authUrl}}/register
+Content-Type: application/json
+
+{
+  "email": "customer@test.com",
+  "password": "password123"
+}
+
+### 6. Try to Register with Invalid Email (Should Fail)
+POST {{authUrl}}/register
+Content-Type: application/json
+
+{
+  "email": "invalid-email",
+  "password": "password123"
+}
+
+### 7. Try to Register with Short Password (Should Fail)
+POST {{authUrl}}/register
+Content-Type: application/json
+
+{
+  "email": "shortpass@test.com",
+  "password": "123"
+}
+
+### 8. Try to Register with Missing Fields (Should Fail)
+POST {{authUrl}}/register
+Content-Type: application/json
+
+{
+  "email": "missing@test.com"
+}
+
+###############################################################################
+# LOGIN TESTS
+###############################################################################
+
+### 9. Login with Valid Customer Credentials
+POST {{authUrl}}/login
+Content-Type: application/json
+
+{
+  "email": "novikmuliro5@gmail.com",
+  "password": "obvious1"
+}
+
+### 10. Login with Valid Admin Credentials
+POST {{authUrl}}/login
+Content-Type: application/json
+
+{
+  "email": "admin@test.com",
+  "password": "adminpassword123"
+}
+
+### 11. Login with Default Admin Credentials (from .env)
+POST {{authUrl}}/login
+Content-Type: application/json
+
+{
+  "email": "jkkimunyi@gmail.com",
+  "password": "admin123"
+}
+
+### 12. Try to Login with Invalid Email (Should Fail)
+POST {{authUrl}}/login
+Content-Type: application/json
+
+{
+  "email": "nonexistent@test.com",
+  "password": "password123"
+}
+
+### 13. Try to Login with Invalid Password (Should Fail)
+POST {{authUrl}}/login
+Content-Type: application/json
+
+{
+  "email": "customer@test.com",
+  "password": "wrongpassword"
+}
+
+### 14. Try to Login with Missing Fields (Should Fail)
+POST {{authUrl}}/login
+Content-Type: application/json
+
+{
+  "email": "customer@test.com"
+}
+
+###############################################################################
+# PASSWORD RESET FLOW TESTS
+###############################################################################
+
+### 15. Request Password Reset for Valid Email
+POST {{authUrl}}/forgot-password
+Content-Type: application/json
+
+{
+  "email": "jkkimunyi@gmail.com"
+}
+
+### 16. Request Password Reset for Non-existent Email (Should Still Return Success)
+POST {{authUrl}}/forgot-password
+Content-Type: application/json
+
+{
+  "email": "nonexistent@test.com"
+}
+
+### 17. Request Password Reset with Invalid Email Format (Should Fail)
+POST {{authUrl}}/forgot-password
+Content-Type: application/json
+
+{
+  "email": "invalid-email"
+}
+
+### 18. Request Password Reset with Missing Email (Should Fail)
+POST {{authUrl}}/forgot-password
+Content-Type: application/json
+
+{}
+
+### 19. Reset Password with Valid Token (Update @resetToken variable first!)
+POST {{authUrl}}/reset-password
+Content-Type: application/json
+
+{
+  "token": "{{resetToken}}",
+  "newPassword": "newpassword123"
+}
+
+### 20. Try to Reset Password with Invalid Token (Should Fail)
+POST {{authUrl}}/reset-password
+Content-Type: application/json
+
+{
+  "token": "invalid.token.here",
+  "newPassword": "newpassword123"
+}
+
+### 21. Try to Reset Password with Short Password (Should Fail)
+POST {{authUrl}}/reset-password
+Content-Type: application/json
+
+{
+  "token": "{{resetToken}}",
+  "newPassword": "123"
+}
+
+### 22. Try to Reset Password with Missing Fields (Should Fail)
+POST {{authUrl}}/reset-password
+Content-Type: application/json
+
+{
+  "token": "{{resetToken}}"
+}
+
+### 23. Try to Reuse Already Used Token (Should Fail)
+POST {{authUrl}}/reset-password
+Content-Type: application/json
+
+{
+  "token": "{{resetToken}}",
+  "newPassword": "anothernewpassword123"
+}
+
+### 24. Test Login with New Password (After successful password reset)
+POST {{authUrl}}/login
+Content-Type: application/json
+
+{
+  "email": "jkkimunyi@gmail.com",
+  "password": "newpassword123"
+}
+
+### 25. Test Password Reset with Special Characters
+POST {{authUrl}}/reset-password
+Content-Type: application/json
+
+{
+  "token": "{{resetToken}}",
+  "newPassword": "P@ssw0rd!@#$%"
+}
+
+### 26. Test Password Reset with Unicode Characters
+POST {{authUrl}}/reset-password
+Content-Type: application/json
+
+{
+  "token": "{{resetToken}}",
+  "newPassword": "pássword123测试"
+}
+
+###############################################################################
+# EDGE CASES AND SECURITY TESTS
+###############################################################################
+
+### 27. Register with Special Characters in Email
+POST {{authUrl}}/register
+Content-Type: application/json
+
+{
+  "email": "test+special@example.com",
+  "password": "password123"
+}
+
+### 28. Login with Email Case Variations
+POST {{authUrl}}/login
+Content-Type: application/json
+
+{
+  "email": "CUSTOMER@TEST.COM",
+  "password": "password123"
+}
+
+### 29. Register with SQL Injection Attempt (Should be Safe)
+POST {{authUrl}}/register
+Content-Type: application/json
+
+{
+  "email": "sql'; DROP TABLE users; --@test.com",
+  "password": "password123"
+}
+
+### 30. Register with XSS Attempt (Should be Safe)
+POST {{authUrl}}/register
+Content-Type: application/json
+
+{
+  "email": "<script>alert('xss')</script>@test.com",
+  "password": "password123"
+}
+
+### 31. Register with Invalid Role (Should Fail)
+POST {{authUrl}}/register
+Content-Type: application/json
+
+{
+  "email": "invalidrole@test.com",
+  "password": "password123",
+  "role": "INVALID_ROLE"
+}
+
+### 32. Try Registration with Wrong Content-Type (Should Fail)
+POST {{authUrl}}/register
+Content-Type: text/plain
+
+{
+  "email": "wrongtype@test.com",
+  "password": "password123"
+}
+
+### 33. Try Registration with Malformed JSON (Should Fail)
+POST {{authUrl}}/register
+Content-Type: application/json
+
+{
+  "email": "malformed@test.com",
+  "password": "password123",
+}

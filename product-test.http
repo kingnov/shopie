@@ -1,0 +1,458 @@
+### Variables
+@baseUrl = http://localhost:3000
+@apiUrl = {{baseUrl}}/api
+@productsUrl = {{apiUrl}}/products
+@authUrl = {{apiUrl}}/auth
+
+### Headers
+@contentType = Content-Type: application/json
+
+###############################################################################
+# AUTHENTICATION (Get Admin Token First)
+###############################################################################
+
+### 1. Login as Admin to get token
+# @name loginAdmin
+POST {{authUrl}}/login
+Content-Type: application/json
+
+{
+  "email": "novikmuliro5@gmail.com",
+  "password": "novikmuliro5@gmail.com"
+}
+
+###############################################################################
+# PRODUCT TESTS - PUBLIC ENDPOINTS
+###############################################################################
+
+### 2. Get all products (Public)
+GET {{productsUrl}}
+Accept: application/json
+
+### 3. Get products with search
+GET {{productsUrl}}?search=iPhone
+Accept: application/json
+
+### 4. Get products with price filter
+GET {{productsUrl}}?minPrice=100&maxPrice=1000
+Accept: application/json
+
+### 5. Get products with pagination
+GET {{productsUrl}}?page=1&limit=5
+Accept: application/json
+
+### 6. Get products with all filters
+GET {{productsUrl}}?search=phone&minPrice=500&maxPrice=2000&isActive=true&page=1&limit=10
+Accept: application/json
+
+### 7. Get in-stock products only
+GET {{productsUrl}}/in-stock
+Accept: application/json
+
+### 8. Get in-stock products with filters
+GET {{productsUrl}}/in-stock?search=phone&minPrice=100
+Accept: application/json
+
+###############################################################################
+# PRODUCT TESTS - ADMIN ENDPOINTS (Using token from login)
+###############################################################################
+
+### 9. Create new product (Admin only)
+POST {{productsUrl}}
+Content-Type: application/json
+Authorization: Bearer {{loginAdmin.response.body.data.accessToken}}
+
+{
+  "name": "iPhone 15 Pro",
+  "shortDescription": "Latest Apple smartphone with titanium design",
+  "price": 1199.99,
+  "imageUrl": "https://example.com/iphone15pro.jpg",
+  "stock": 25,
+  "isActive": true
+}
+
+### 10. Create another product
+POST {{productsUrl}}
+Content-Type: application/json
+Authorization: Bearer {{loginAdmin.response.body.data.accessToken}}
+
+{
+  "name": "Samsung Galaxy S24",
+  "shortDescription": "Premium Android smartphone",
+  "price": 999.99,
+  "imageUrl": "https://example.com/galaxys24.jpg",
+  "stock": 30
+}
+
+### 11. Create product with minimum required fields
+POST {{productsUrl}}
+Content-Type: application/json
+Authorization: Bearer {{loginAdmin.response.body.data.accessToken}}
+
+{
+  "name": "Basic Phone",
+  "shortDescription": "Simple smartphone for everyday use",
+  "price": 199.99,
+  "imageUrl": "https://example.com/basicphone.jpg"
+}
+
+### 12. Get specific product by ID (Replace 1 with actual product ID)
+GET {{productsUrl}}/1
+Accept: application/json
+
+### 13. Update product (Replace 1 with actual product ID)
+PATCH {{productsUrl}}/1
+Content-Type: application/json
+Authorization: Bearer {{loginAdmin.response.body.data.accessToken}}
+
+{
+  "name": "iPhone 15 Pro Updated",
+  "price": 1099.99,
+  "stock": 50
+}
+
+### 14. Increase product stock
+PATCH {{productsUrl}}/1/stock/increase
+Content-Type: application/json
+Authorization: Bearer {{loginAdmin.response.body.data.accessToken}}
+
+{
+  "quantity": 10
+}
+
+### 15. Decrease product stock
+PATCH {{productsUrl}}/1/stock/decrease
+Content-Type: application/json
+Authorization: Bearer {{loginAdmin.response.body.data.accessToken}}
+
+{
+  "quantity": 5
+}
+
+### 16. Get product statistics (Admin only)
+GET {{productsUrl}}/stats
+Authorization: Bearer {{loginAdmin.response.body.data.accessToken}}
+Accept: application/json
+
+### 17. Generate sample products (Admin only)
+POST {{productsUrl}}/generate-sample-data
+Authorization: Bearer {{loginAdmin.response.body.data.accessToken}}
+Accept: application/json
+
+###############################################################################
+# ERROR HANDLING TESTS
+###############################################################################
+
+### 18. Try to create product without authentication (Should fail)
+POST {{productsUrl}}
+Content-Type: application/json
+
+{
+  "name": "Unauthorized Product",
+  "shortDescription": "This should fail",
+  "price": 99.99,
+  "imageUrl": "https://example.com/fail.jpg"
+}
+
+### 19. Try to create product with invalid data (Should fail)
+POST {{productsUrl}}
+Content-Type: application/json
+Authorization: Bearer {{loginAdmin.response.body.data.accessToken}}
+
+{
+  "name": "",
+  "shortDescription": "Invalid product",
+  "price": -10,
+  "imageUrl": "not-a-url"
+}
+
+### 20. Try to create duplicate product (Should fail)
+POST {{productsUrl}}
+Content-Type: application/json
+Authorization: Bearer {{loginAdmin.response.body.data.accessToken}}
+
+{
+  "name": "iPhone 15 Pro",
+  "shortDescription": "Duplicate product",
+  "price": 999.99,
+  "imageUrl": "https://example.com/duplicate.jpg"
+}
+
+### 21. Try to get non-existent product (Should fail)
+GET {{productsUrl}}/99999
+Accept: application/json
+
+### 22. Try to update non-existent product (Should fail)
+PATCH {{productsUrl}}/99999
+Content-Type: application/json
+Authorization: Bearer {{loginAdmin.response.body.data.accessToken}}
+
+{
+  "name": "Non-existent Product"
+}
+
+### 23. Try to increase stock with invalid quantity (Should fail)
+PATCH {{productsUrl}}/1/stock/increase
+Content-Type: application/json
+Authorization: Bearer {{loginAdmin.response.body.data.accessToken}}
+
+{
+  "quantity": -5
+}
+
+### 24. Try to decrease more stock than available (Should fail)
+PATCH {{productsUrl}}/1/stock/decrease
+Content-Type: application/json
+Authorization: Bearer {{loginAdmin.response.body.data.accessToken}}
+
+{
+  "quantity": 1000
+}
+
+###############################################################################
+# EDGE CASES AND BOUNDARY TESTS
+###############################################################################
+
+### 25. Create product with very long name
+POST {{productsUrl}}
+Content-Type: application/json
+Authorization: Bearer {{loginAdmin.response.body.data.accessToken}}
+
+{
+  "name": "Very Long Product Name That Might Cause Issues With Database Storage And Display In UI Components",
+  "shortDescription": "Testing long names",
+  "price": 99.99,
+  "imageUrl": "https://example.com/longname.jpg"
+}
+
+### 26. Create product with zero price
+POST {{productsUrl}}
+Content-Type: application/json
+Authorization: Bearer {{loginAdmin.response.body.data.accessToken}}
+
+{
+  "name": "Free Product",
+  "shortDescription": "This product is free",
+  "price": 0,
+  "imageUrl": "https://example.com/free.jpg"
+}
+
+### 27. Create product with high price
+POST {{productsUrl}}
+Content-Type: application/json
+Authorization: Bearer {{loginAdmin.response.body.data.accessToken}}
+
+{
+  "name": "Expensive Product",
+  "shortDescription": "Very expensive item",
+  "price": 999999.99,
+  "imageUrl": "https://example.com/expensive.jpg"
+}
+
+### 28. Search with special characters
+GET {{productsUrl}}?search=@#$%^&*()
+Accept: application/json
+
+### 29. Search with Unicode characters
+GET {{productsUrl}}?search=测试
+Accept: application/json
+
+### 30. Get products with invalid pagination
+GET {{productsUrl}}?page=-1&limit=0
+Accept: application/json
+
+### 31. Get products with large pagination
+GET {{productsUrl}}?page=1&limit=1000
+Accept: application/json
+
+###############################################################################
+# PERFORMANCE AND STRESS TESTS
+###############################################################################
+
+### 32. Create multiple products rapidly
+POST {{productsUrl}}
+Content-Type: application/json
+Authorization: Bearer {{loginAdmin.response.body.data.accessToken}}
+
+{
+  "name": "Rapid Product 1",
+  "shortDescription": "Performance test product",
+  "price": 99.99,
+  "imageUrl": "https://example.com/rapid1.jpg"
+}
+
+### 33. Create multiple products rapidly 2
+POST {{productsUrl}}
+Content-Type: application/json
+Authorization: Bearer {{loginAdmin.response.body.data.accessToken}}
+
+{
+  "name": "Rapid Product 2",
+  "shortDescription": "Performance test product",
+  "price": 99.99,
+  "imageUrl": "https://example.com/rapid2.jpg"
+}
+
+### 34. Create multiple products rapidly 3
+POST {{productsUrl}}
+Content-Type: application/json
+Authorization: Bearer {{loginAdmin.response.body.data.accessToken}}
+
+{
+  "name": "Rapid Product 3",
+  "shortDescription": "Performance test product",
+  "price": 99.99,
+  "imageUrl": "https://example.com/rapid3.jpg"
+}
+
+###############################################################################
+# CLEANUP TESTS
+###############################################################################
+
+### 35. Delete a product (Replace ID with actual product ID)
+DELETE {{productsUrl}}/1
+Authorization: Bearer {{loginAdmin.response.body.data.accessToken}}
+
+### 36. Try to delete already deleted product (Should fail)
+DELETE {{productsUrl}}/1
+Authorization: Bearer {{loginAdmin.response.body.data.accessToken}}
+
+### 37. Final verification - Get all products
+GET {{productsUrl}}
+Accept: application/json
+
+###############################################################################
+# CUSTOMER AUTHENTICATION TESTS
+###############################################################################
+
+### 38. Register a customer for testing
+# @name registerCustomer
+POST {{authUrl}}/register
+Content-Type: application/json
+
+{
+  "email": "customer@test.com",
+  "password": "password123"
+}
+
+### 39. Login as customer
+# @name loginCustomer
+POST {{authUrl}}/login
+Content-Type: application/json
+
+{
+  "email": "customer@test.com",
+  "password": "password123"
+}
+
+### 40. Try to create product as customer (Should fail)
+POST {{productsUrl}}
+Content-Type: application/json
+Authorization: Bearer {{loginCustomer.response.body.data.accessToken}}
+
+{
+  "name": "Customer Product",
+  "shortDescription": "This should fail",
+  "price": 99.99,
+  "imageUrl": "https://example.com/customer.jpg"
+}
+
+### 41. Try to access admin stats as customer (Should fail)
+GET {{productsUrl}}/stats
+Authorization: Bearer {{loginCustomer.response.body.data.accessToken}}
+Accept: application/json
+
+### 42. Try to update product as customer (Should fail)
+PATCH {{productsUrl}}/1
+Content-Type: application/json
+Authorization: Bearer {{loginCustomer.response.body.data.accessToken}}
+
+{
+  "name": "Customer Update"
+}
+
+### 43. Try to delete product as customer (Should fail)
+DELETE {{productsUrl}}/1
+Authorization: Bearer {{loginCustomer.response.body.data.accessToken}}
+
+###############################################################################
+# ADDITIONAL VALIDATION TESTS
+###############################################################################
+
+### 44. Create product with decimal stock (Should fail)
+POST {{productsUrl}}
+Content-Type: application/json
+Authorization: Bearer {{loginAdmin.response.body.data.accessToken}}
+
+{
+  "name": "Decimal Stock Product",
+  "shortDescription": "Testing decimal stock",
+  "price": 99.99,
+  "imageUrl": "https://example.com/decimal.jpg",
+  "stock": 5.5
+}
+
+### 45. Create product with negative stock (Should fail)
+POST {{productsUrl}}
+Content-Type: application/json
+Authorization: Bearer {{loginAdmin.response.body.data.accessToken}}
+
+{
+  "name": "Negative Stock Product",
+  "shortDescription": "Testing negative stock",
+  "price": 99.99,
+  "imageUrl": "https://example.com/negative.jpg",
+  "stock": -10
+}
+
+### 46. Create product with invalid URL (Should fail)
+POST {{productsUrl}}
+Content-Type: application/json
+Authorization: Bearer {{loginAdmin.response.body.data.accessToken}}
+
+{
+  "name": "Invalid URL Product",
+  "shortDescription": "Testing invalid URL",
+  "price": 99.99,
+  "imageUrl": "not-a-valid-url"
+}
+
+### 47. Create product with missing required fields (Should fail)
+POST {{productsUrl}}
+Content-Type: application/json
+Authorization: Bearer {{loginAdmin.response.body.data.accessToken}}
+
+{
+  "name": "Missing Fields Product"
+}
+
+### 48. Update product with invalid price (Should fail)
+PATCH {{productsUrl}}/1
+Content-Type: application/json
+Authorization: Bearer {{loginAdmin.response.body.data.accessToken}}
+
+{
+  "price": -100
+}
+
+### 49. Try to increase stock by zero (Should fail)
+PATCH {{productsUrl}}/1/stock/increase
+Content-Type: application/json
+Authorization: Bearer {{loginAdmin.response.body.data.accessToken}}
+
+{
+  "quantity": 0
+}
+
+### 50. Try to decrease stock by zero (Should fail)
+PATCH {{productsUrl}}/1/stock/decrease
+Content-Type: application/json
+Authorization: Bearer {{loginAdmin.response.body.data.accessToken}}
+
+{
+  "quantity": 0
+}
+
+### 51. Final comprehensive product list
+GET {{productsUrl}}?page=1&limit=50
+Accept: application/json

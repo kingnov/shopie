@@ -1,0 +1,331 @@
+### Variables
+@baseUrl = http://localhost:3000/api
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjQsImVtYWlsIjoiYWRtaW5AdGVzdC5jb20iLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE3NTAzMzUzNTQsImV4cCI6MTc1MDk0MDE1NH0.1auTiYWr_DHN6u0yoj5qp-e7yuIw47CdYYz9fRHWi_E
+@productId = 1
+@cartItemId = 1
+
+
+POST http://localhost:3000/api/auth/register
+Content-Type: application/json
+
+{
+  "email": "newuser@example.com",
+  "password": "StrongPassword123",
+  "firstName": "New",
+  "lastName": "User",
+  "phone": "1234567890",
+  "role": "CUSTOMER"
+}
+
+
+### 1. Login to get JWT token (run this first)
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@test.com",
+  "password": "adminpassword123"
+}
+### 2. Create a test product (if needed)
+POST {{baseUrl}}/products
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "Test Product for Cart",
+  "shortDescription": "A test product for cart functionality",
+  "price": 29.99,
+  "imageUrl": "https://example.com/test-product.jpg",
+  "stock": 100,
+  "isActive": true
+}
+
+### 3. Get empty cart (should create cart if doesn't exist)
+GET {{baseUrl}}/cart
+Authorization: Bearer {{token}}
+
+### 4. Get cart items count (should be 0 initially)
+GET {{baseUrl}}/cart/count
+Authorization: Bearer {{token}}
+
+### 5. Add item to cart - Success case
+POST {{baseUrl}}/cart/add
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "productId": {{productId}},
+  "quantity": 2
+}
+
+### 6. Add same item to cart again (should increase quantity)
+POST {{baseUrl}}/cart/add
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "productId": {{productId}},
+  "quantity": 1
+}
+
+### 7. Get cart with items
+GET {{baseUrl}}/cart
+Authorization: Bearer {{token}}
+
+### 8. Get updated cart items count
+GET {{baseUrl}}/cart/count
+Authorization: Bearer {{token}}
+
+### 9. Add different product to cart
+POST {{baseUrl}}/cart/add
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "productId": 2,
+  "quantity": 1
+}
+
+### 10. Update cart item quantity
+PUT {{baseUrl}}/cart/items/{{cartItemId}}
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "quantity": 5
+}
+
+### 11. Try to add item with invalid product ID (should fail)
+POST {{baseUrl}}/cart/add
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "productId": 99999,
+  "quantity": 1
+}
+
+### 12. Try to add item with zero quantity (should fail)
+POST {{baseUrl}}/cart/add
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "productId": {{productId}},
+  "quantity": 0
+}
+
+### 13. Try to add item with negative quantity (should fail)
+POST {{baseUrl}}/cart/add
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "productId": {{productId}},
+  "quantity": -1
+}
+
+### 14. Try to add more items than available stock (should fail)
+POST {{baseUrl}}/cart/add
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "productId": {{productId}},
+  "quantity": 10000
+}
+
+### 15. Try to update cart item with invalid item ID (should fail)
+PUT {{baseUrl}}/cart/items/99999
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "quantity": 1
+}
+
+### 16. Try to update cart item with zero quantity (should fail)
+PUT {{baseUrl}}/cart/items/{{cartItemId}}
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "quantity": 0
+}
+
+### 17. Try to update cart item quantity exceeding stock (should fail)
+PUT {{baseUrl}}/cart/items/{{cartItemId}}
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "quantity": 10000
+}
+
+### 18. Remove specific item from cart
+DELETE {{baseUrl}}/cart/items/{{cartItemId}}
+Authorization: Bearer {{token}}
+
+### 19. Try to remove non-existent cart item (should fail)
+DELETE {{baseUrl}}/cart/items/99999
+Authorization: Bearer {{token}}
+
+### 20. Get cart after item removal
+GET {{baseUrl}}/cart
+Authorization: Bearer {{token}}
+
+### 21. Add multiple items for clearing test
+POST {{baseUrl}}/cart/add
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "productId": {{productId}},
+  "quantity": 3
+}
+
+### 22. Add another item
+POST {{baseUrl}}/cart/add
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "productId": 2,
+  "quantity": 2
+}
+
+### 23. Get cart before clearing
+GET {{baseUrl}}/cart
+Authorization: Bearer {{token}}
+
+### 24. Clear entire cart
+DELETE {{baseUrl}}/cart/clear
+Authorization: Bearer {{token}}
+
+### 25. Verify cart is empty after clearing
+GET {{baseUrl}}/cart
+Authorization: Bearer {{token}}
+
+### 26. Verify cart count is zero after clearing
+GET {{baseUrl}}/cart/count
+Authorization: Bearer {{token}}
+
+### 27. Test without authentication (should fail)
+GET {{baseUrl}}/cart
+
+### 28. Test with invalid token (should fail)
+GET {{baseUrl}}/cart
+Authorization: Bearer invalid_token_here
+
+### 29. Test with malformed request body
+POST {{baseUrl}}/cart/add
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "invalidField": "test",
+  "quantity": "not_a_number"
+}
+
+### 30. Test edge case - Add item with exactly available stock
+POST {{baseUrl}}/cart/add
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "productId": {{productId}},
+  "quantity": 1
+}
+
+### 31. Performance test - Add multiple different items quickly
+POST {{baseUrl}}/cart/add
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "productId": 1,
+  "quantity": 1
+}
+
+###
+POST {{baseUrl}}/cart/add
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "productId": 2,
+  "quantity": 1
+}
+
+###
+POST {{baseUrl}}/cart/add
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "productId": 3,
+  "quantity": 1
+}
+
+### 32. Test cart after adding multiple items
+GET {{baseUrl}}/cart
+Authorization: Bearer {{token}}
+
+### 33. Test cart total calculation accuracy
+GET {{baseUrl}}/cart/count
+Authorization: Bearer {{token}}
+
+### 34. Test updating item to quantity 1
+PUT {{baseUrl}}/cart/items/1
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "quantity": 1
+}
+
+### 35. Final cart state verification
+GET {{baseUrl}}/cart
+Authorization: Bearer {{token}}
+
+### Additional Test Cases for Stress Testing
+
+### 36. Rapid fire additions (uncomment and run if needed)
+# POST {{baseUrl}}/cart/add
+# Content-Type: application/json
+# Authorization: Bearer {{token}}
+# 
+# {
+#   "productId": {{productId}},
+#   "quantity": 1
+# }
+
+### 37. Test with maximum integer values
+# POST {{baseUrl}}/cart/add
+# Content-Type: application/json
+# Authorization: Bearer {{token}}
+# 
+# {
+#   "productId": {{productId}},
+#   "quantity": 2147483647
+# }
+
+### 38. Test concurrent operations (run multiple times simultaneously)
+# POST {{baseUrl}}/cart/add
+# Content-Type: application/json
+# Authorization: Bearer {{token}}
+# 
+# {
+#   "productId": {{productId}},
+#   "quantity": 1
+# }
+
+### Notes for testing:
+# 1. Replace {{token}} with actual JWT token from login response
+# 2. Replace {{productId}} with actual product ID from your database
+# 3. Replace {{cartItemId}} with actual cart item ID from cart responses
+# 4. Run tests in order for best results
+# 5. Some tests are designed to fail - check response codes
+# 6. Expected successful responses: 200, 201
+# 7. Expected error responses: 400, 401, 404
+# 8. Monitor server logs for detailed error information

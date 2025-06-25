@@ -1,0 +1,286 @@
+### Variables
+@baseUrl = http://localhost:3000/api
+@adminEmail = novikmuliro5@gmail.com
+@adminPassword = newpassword123
+
+### 1. First, login to get JWT token (Admin)
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "{{adminEmail}}",
+  "password": "{{adminPassword}}"
+}
+
+### Store the token from above response and use it below
+@authToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImVtYWlsIjoiamtraW11bnlpQGdtYWlsLmNvbSIsInJvbGUiOiJBRE1JTiIsImlhdCI6MTc1MDM0MDg5MCwiZXhwIjoxNzUwOTQ1NjkwfQ.PGeyvRbF6rG-aXrDidCNzMH-fckmmvE5rjP-IOCrtRg
+
+###
+
+### 2. Health Check
+GET http://localhost:3000/health
+
+###
+
+### 3. Get User Profile
+GET {{baseUrl}}/user/profile
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+###
+
+### 4. Update User Profile - All Fields
+PUT {{baseUrl}}/user/profile
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "email": "novikmuliro5@gmail.com",
+  "firstName": "Jimmy",
+  "lastName": "Kimunyi",
+  "phone": "+254113514156"
+}
+
+###
+
+### 5. Update User Profile - Only Email
+PUT {{baseUrl}}/user/profile
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "email": "newemail@example.com"
+}
+
+###
+
+### 6. Update User Profile - Only Name Fields
+PUT {{baseUrl}}/user/profile
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "firstName": "Jane",
+  "lastName": "Smith"
+}
+
+###
+
+### 7. Update User Profile - Only Phone
+PUT {{baseUrl}}/user/profile
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "phone": "+9876543210"
+}
+
+###
+
+### 8. Change Password - Valid
+PUT {{baseUrl}}/user/change-password
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "currentPassword": "newpassword123",
+  "newPassword": "admin123"
+}
+
+###
+
+### 9. Change Password Back to Original
+PUT {{baseUrl}}/user/change-password
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "currentPassword": "admin123",
+  "newPassword": "jimmy254"
+}
+
+###
+
+### Error Test Cases
+
+### 10. Update Profile with Existing Email (Should return 409)
+PUT {{baseUrl}}/user/profile
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "email": "existing@example.com"
+}
+
+###
+
+### 11. Change Password with Wrong Current Password (Should return 400)
+PUT {{baseUrl}}/user/change-password
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "currentPassword": "wrongPassword",
+  "newPassword": "newPassword123"
+}
+
+###
+
+### 12. Change Password with Invalid New Password (Should return 400)
+PUT {{baseUrl}}/user/change-password
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "currentPassword": "admin123",
+  "newPassword": "123"
+}
+
+###
+
+### 13. Update Profile with Invalid Email (Should return 400)
+PUT {{baseUrl}}/user/profile
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "email": "invalid-email"
+}
+
+###
+
+### 14. Access Profile without Token (Should return 401)
+GET {{baseUrl}}/user/profile
+Content-Type: application/json
+
+###
+
+### 15. Access Profile with Invalid Token (Should return 401)
+GET {{baseUrl}}/user/profile
+Authorization: Bearer invalid_token_here
+Content-Type: application/json
+
+###
+
+### 16. Update Profile without Token (Should return 401)
+PUT {{baseUrl}}/user/profile
+Content-Type: application/json
+
+{
+  "firstName": "Unauthorized"
+}
+
+###
+
+### 17. Change Password without Token (Should return 401)
+PUT {{baseUrl}}/user/change-password
+Content-Type: application/json
+
+{
+  "currentPassword": "admin123",
+  "newPassword": "newPassword123"
+}
+
+###
+
+### Authentication Flow Tests
+
+### 18. Register New User for Testing
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "email": "testuser@example.com",
+  "password": "testpassword123",
+  "firstName": "Test",
+  "lastName": "User",
+  "phone": "+1111111111"
+}
+
+###
+
+### 19. Login with New User
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "testuser@example.com",
+  "password": "testpassword123"
+}
+
+### Use token from response above
+@testUserToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+
+###
+
+### 20. Test User - Get Profile
+GET {{baseUrl}}/user/profile
+Authorization: Bearer {{testUserToken}}
+Content-Type: application/json
+
+###
+
+### 21. Test User - Update Profile
+PUT {{baseUrl}}/user/profile
+Authorization: Bearer {{testUserToken}}
+Content-Type: application/json
+
+{
+  "firstName": "Updated Test",
+  "lastName": "User Updated",
+  "phone": "+2222222222"
+}
+
+###
+
+### 22. Test User - Change Password
+PUT {{baseUrl}}/user/change-password
+Authorization: Bearer {{testUserToken}}
+Content-Type: application/json
+
+{
+  "currentPassword": "testpassword123",
+  "newPassword": "newTestPassword123"
+}
+
+
+
+### DANGER ZONE - Account Deletion (Uncomment to test)
+
+### 23. Delete Test User Account (IRREVERSIBLE!)
+# DELETE {{baseUrl}}/user/account
+# Authorization: Bearer {{testUserToken}}
+# Content-Type: application/json
+
+###
+
+### 24. Try to access deleted user profile (Should return 401/404)
+# GET {{baseUrl}}/user/profile
+# Authorization: Bearer {{testUserToken}}
+# Content-Type: application/json
+
+###
+
+### API Documentation Access
+### 25. Open API Documentation
+GET http://localhost:3000/api/docs
+
+###
+
+### Instructions:
+# 1. Run the application first: npm run start:dev
+# 2. Execute request #1 to login and get JWT token
+# 3. Copy the token from response and replace {{authToken}} variable
+# 4. Run other requests in sequence
+# 5. For new user tests, execute #18-19 to create and login with test user
+# 6. Copy test user token and replace {{testUserToken}} variable
+# 7. Account deletion tests are commented for safety - uncomment if needed
+# 8. Check API documentation at http://localhost:3000/api/docs
+# 9. Use health check endpoint to verify server status
+
+### Expected Responses:
+# - 200: Successful operations (GET profile, PUT updates, PUT password change)
+# - 400: Bad request (invalid data, wrong password)
+# - 401: Unauthorized (no token, invalid token)
+# - 409: Conflict (email already exists)
+# - 404: Not found (user doesn't exist after deletion)
