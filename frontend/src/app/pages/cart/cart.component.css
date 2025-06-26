@@ -1,0 +1,139 @@
+/* Cart Component Styles */
+
+/* Smooth transitions for interactive elements */
+button {
+  transition: all 0.2s ease-in-out;
+}
+
+/* Quantity controls styling */
+.quantity-controls button {
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.quantity-controls button:hover:not(:disabled) {
+  background-color: #f9fafb;
+  border-color: #d1d5db;
+}
+
+/* Cart item hover effects */
+.cart-item {
+  transition: background-color 0.2s ease;
+}
+
+.cart-item:hover {
+  background-color: #f9fafb;
+}
+
+/* Loading animation */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+/* Sticky summary positioning */
+.sticky {
+  position: sticky;
+  top: 2rem;
+}
+
+/* Image styling */
+.cart-item-image {
+  transition: transform 0.2s ease;
+}
+
+.cart-item-image:hover {
+  transform: scale(1.05);
+}
+
+/* Remove button hover effect */
+.remove-btn {
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.remove-btn:hover {
+  transform: scale(1.1);
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+  .sticky {
+    position: static;
+  }
+}
+
+@media (max-width: 640px) {
+  .cart-item {
+    padding: 1rem;
+  }
+
+  .cart-item-image {
+    width: 60px;
+    height: 60px;
+  }
+
+  .text-lg {
+    font-size: 1rem;
+    line-height: 1.5rem;
+  }
+
+  .space-x-4 > * + * {
+    margin-left: 0.75rem;
+  }
+}
+
+/* Custom scrollbar for mobile */
+@media (max-width: 768px) {
+  .overflow-x-auto::-webkit-scrollbar {
+    height: 4px;
+  }
+
+  .overflow-x-auto::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 2px;
+  }
+
+  .overflow-x-auto::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 2px;
+  }
+
+  .overflow-x-auto::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+  }
+}
+
+/* Disabled state styling */
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* Focus states for accessibility */
+button:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* Animation for quantity updates */
+.quantity-updating {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+/* Success/error states */
+.success-message {
+  background-color: #d1fae5;
+  border-color: #a7f3d0;
+  color: #065f46;
+}
+
+.error-message {
+  background-color: #fee2e2;
+  border-color: #fecaca;
+  color: #991b1b;
+}

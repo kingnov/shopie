@@ -1,0 +1,314 @@
+### Frontend Cart Integration Tests
+### This file tests the cart functionality from the frontend perspective
+### Make sure the backend is running on localhost:3000
+
+### Variables
+@baseUrl = http://localhost:3000/api
+@frontendUrl = http://localhost:4200
+
+### Test User Credentials
+@testEmail = customer@test.com
+@testPassword = password123
+@adminEmail = admin@test.com
+@adminPassword = adminpassword123
+
+###############################################################################
+# AUTHENTICATION SETUP
+###############################################################################
+
+### 1. Register test customer (if not exists)
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "email": "{{testEmail}}",
+  "password": "{{testPassword}}"
+}
+
+### 2. Login as customer to get token
+# @name loginCustomer
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "{{testEmail}}",
+  "password": "{{testPassword}}"
+}
+
+### 3. Login as admin to create test products
+# @name loginAdmin
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "{{adminEmail}}",
+  "password": "{{adminPassword}}"
+}
+
+###############################################################################
+# PRODUCT SETUP FOR TESTING
+###############################################################################
+
+### 4. Create test product 1
+POST {{baseUrl}}/products
+Content-Type: application/json
+Authorization: Bearer {{loginAdmin.response.body.data.accessToken}}
+
+{
+  "name": "Frontend Test Product 1",
+  "shortDescription": "A test product for frontend cart testing",
+  "price": 29.99,
+  "imageUrl": "https://via.placeholder.com/300x300/4F46E5/FFFFFF?text=Product+1",
+  "stock": 10,
+  "isActive": true
+}
+
+### 5. Create test product 2
+POST {{baseUrl}}/products
+Content-Type: application/json
+Authorization: Bearer {{loginAdmin.response.body.data.accessToken}}
+
+{
+  "name": "Frontend Test Product 2",
+  "shortDescription": "Another test product for cart functionality",
+  "price": 49.99,
+  "imageUrl": "https://via.placeholder.com/300x300/10B981/FFFFFF?text=Product+2",
+  "stock": 5,
+  "isActive": true
+}
+
+### 6. Create out of stock product
+POST {{baseUrl}}/products
+Content-Type: application/json
+Authorization: Bearer {{loginAdmin.response.body.data.accessToken}}
+
+{
+  "name": "Out of Stock Product",
+  "shortDescription": "Product with no stock for testing",
+  "price": 19.99,
+  "imageUrl": "https://via.placeholder.com/300x300/EF4444/FFFFFF?text=No+Stock",
+  "stock": 0,
+  "isActive": true
+}
+
+###############################################################################
+# CART FUNCTIONALITY TESTS (Customer Token)
+###############################################################################
+
+### 7. Get empty cart (should create cart if doesn't exist)
+GET {{baseUrl}}/cart
+Authorization: Bearer {{loginCustomer.response.body.data.accessToken}}
+
+### 8. Get cart items count (should be 0 initially)
+GET {{baseUrl}}/cart/count
+Authorization: Bearer {{loginCustomer.response.body.data.accessToken}}
+
+### 9. Add first product to cart
+POST {{baseUrl}}/cart/add
+Content-Type: application/json
+Authorization: Bearer {{loginCustomer.response.body.data.accessToken}}
+
+{
+  "productId": 1,
+  "quantity": 2
+}
+
+### 10. Add second product to cart
+POST {{baseUrl}}/cart/add
+Content-Type: application/json
+Authorization: Bearer {{loginCustomer.response.body.data.accessToken}}
+
+{
+  "productId": 2,
+  "quantity": 1
+}
+
+### 11. Get cart with items
+GET {{baseUrl}}/cart
+Authorization: Bearer {{loginCustomer.response.body.data.accessToken}}
+
+### 12. Get updated cart items count
+GET {{baseUrl}}/cart/count
+Authorization: Bearer {{loginCustomer.response.body.data.accessToken}}
+
+### 13. Update cart item quantity (increase)
+PUT {{baseUrl}}/cart/items/1
+Content-Type: application/json
+Authorization: Bearer {{loginCustomer.response.body.data.accessToken}}
+
+{
+  "quantity": 3
+}
+
+### 14. Update cart item quantity (decrease)
+PUT {{baseUrl}}/cart/items/2
+Content-Type: application/json
+Authorization: Bearer {{loginCustomer.response.body.data.accessToken}}
+
+{
+  "quantity": 1
+}
+
+### 15. Try to add more items than available stock (should fail)
+POST {{baseUrl}}/cart/add
+Content-Type: application/json
+Authorization: Bearer {{loginCustomer.response.body.data.accessToken}}
+
+{
+  "productId": 2,
+  "quantity": 10
+}
+
+### 16. Try to add out of stock product (should fail)
+POST {{baseUrl}}/cart/add
+Content-Type: application/json
+Authorization: Bearer {{loginCustomer.response.body.data.accessToken}}
+
+{
+  "productId": 3,
+  "quantity": 1
+}
+
+### 17. Remove specific item from cart
+DELETE {{baseUrl}}/cart/items/1
+Authorization: Bearer {{loginCustomer.response.body.data.accessToken}}
+
+### 18. Get cart after item removal
+GET {{baseUrl}}/cart
+Authorization: Bearer {{loginCustomer.response.body.data.accessToken}}
+
+### 19. Add item back for clearing test
+POST {{baseUrl}}/cart/add
+Content-Type: application/json
+Authorization: Bearer {{loginCustomer.response.body.data.accessToken}}
+
+{
+  "productId": 1,
+  "quantity": 1
+}
+
+### 20. Clear entire cart
+DELETE {{baseUrl}}/cart/clear
+Authorization: Bearer {{loginCustomer.response.body.data.accessToken}}
+
+### 21. Verify cart is empty after clearing
+GET {{baseUrl}}/cart
+Authorization: Bearer {{loginCustomer.response.body.data.accessToken}}
+
+### 22. Verify cart count is zero after clearing
+GET {{baseUrl}}/cart/count
+Authorization: Bearer {{loginCustomer.response.body.data.accessToken}}
+
+###############################################################################
+# ERROR HANDLING TESTS
+###############################################################################
+
+### 23. Test without authentication (should fail)
+GET {{baseUrl}}/cart
+
+### 24. Test with invalid token (should fail)
+GET {{baseUrl}}/cart
+Authorization: Bearer invalid_token_here
+
+### 25. Try to update non-existent cart item (should fail)
+PUT {{baseUrl}}/cart/items/99999
+Content-Type: application/json
+Authorization: Bearer {{loginCustomer.response.body.data.accessToken}}
+
+{
+  "quantity": 1
+}
+
+### 26. Try to remove non-existent cart item (should fail)
+DELETE {{baseUrl}}/cart/items/99999
+Authorization: Bearer {{loginCustomer.response.body.data.accessToken}}
+
+### 27. Try to add invalid product (should fail)
+POST {{baseUrl}}/cart/add
+Content-Type: application/json
+Authorization: Bearer {{loginCustomer.response.body.data.accessToken}}
+
+{
+  "productId": 99999,
+  "quantity": 1
+}
+
+### 28. Try to add with zero quantity (should fail)
+POST {{baseUrl}}/cart/add
+Content-Type: application/json
+Authorization: Bearer {{loginCustomer.response.body.data.accessToken}}
+
+{
+  "productId": 1,
+  "quantity": 0
+}
+
+### 29. Try to add with negative quantity (should fail)
+POST {{baseUrl}}/cart/add
+Content-Type: application/json
+Authorization: Bearer {{loginCustomer.response.body.data.accessToken}}
+
+{
+  "productId": 1,
+  "quantity": -1
+}
+
+### 30. Try to update with zero quantity (should fail)
+PUT {{baseUrl}}/cart/items/1
+Content-Type: application/json
+Authorization: Bearer {{loginCustomer.response.body.data.accessToken}}
+
+{
+  "quantity": 0
+}
+
+###############################################################################
+# FRONTEND INTEGRATION NOTES
+###############################################################################
+
+### Manual Testing Checklist for Frontend:
+### 
+### 1. Navigation:
+###    - Cart icon in navbar shows correct count
+###    - Cart icon badge updates in real-time
+###    - Cart link is only visible when authenticated
+### 
+### 2. Product Pages:
+###    - Home page product cards have functional cart buttons
+###    - Products page cart buttons work correctly
+###    - Cart buttons show loading state when adding
+###    - Cart buttons are disabled for out-of-stock items
+###    - Unauthenticated users are redirected to login
+### 
+### 3. Product Details Page:
+###    - Displays comprehensive product information
+###    - Quantity selector works correctly
+###    - Add to cart button functions properly
+###    - Loading states are shown appropriately
+###    - Error handling for stock limitations
+### 
+### 4. Cart Page:
+###    - Shows all cart items correctly
+###    - Quantity controls work (increase/decrease)
+###    - Item removal functions properly
+###    - Cart totals calculate correctly
+###    - Clear cart functionality works
+###    - Empty cart state displays properly
+###    - Loading states during operations
+### 
+### 5. State Management:
+###    - Cart count persists across page refreshes
+###    - Cart data is consistent across components
+###    - Error states are handled gracefully
+###    - Authentication state affects cart visibility
+### 
+### 6. Responsive Design:
+###    - All cart functionality works on mobile
+###    - Product details page is mobile-friendly
+###    - Cart page layout adapts to screen size
+### 
+### 7. Error Scenarios:
+###    - Network errors are handled gracefully
+###    - Invalid operations show appropriate messages
+###    - Stock limitations are enforced
+###    - Authentication errors redirect properly

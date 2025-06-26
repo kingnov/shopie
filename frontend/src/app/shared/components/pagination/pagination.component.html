@@ -1,0 +1,91 @@
+<div *ngIf="pagination" class="flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0 bg-white px-4 py-3 border-t border-gray-200">
+  <!-- Page Info -->
+  <div *ngIf="showInfo" class="text-sm text-gray-700">
+    {{ getPageInfo() }}
+  </div>
+
+  <!-- Pagination Controls -->
+  <div class="flex items-center space-x-2">
+    <!-- First Page -->
+    <button
+      (click)="onFirstClick()"
+      [disabled]="isFirstPage()"
+      class="relative inline-flex items-center px-2 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-l-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+      title="First page"
+    >
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"></path>
+      </svg>
+    </button>
+
+    <!-- Previous Page -->
+    <button
+      (click)="onPreviousClick()"
+      [disabled]="!pagination.hasPrev"
+      class="relative inline-flex items-center px-2 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+      title="Previous page"
+    >
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+      </svg>
+    </button>
+
+    <!-- Page Numbers -->
+    <div class="hidden sm:flex space-x-1">
+      <button
+        *ngFor="let page of visiblePages"
+        (click)="onPageClick(page)"
+        [class]="page === pagination.page 
+          ? 'relative inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-blue-600 hover:bg-blue-700'
+          : 'relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 hover:bg-gray-50'"
+      >
+        {{ page }}
+      </button>
+    </div>
+
+    <!-- Current Page (Mobile) -->
+    <div class="sm:hidden flex items-center space-x-2">
+      <span class="text-sm text-gray-700">
+        Page {{ pagination.page }} of {{ pagination.totalPages }}
+      </span>
+    </div>
+
+    <!-- Next Page -->
+    <button
+      (click)="onNextClick()"
+      [disabled]="!pagination.hasNext"
+      class="relative inline-flex items-center px-2 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+      title="Next page"
+    >
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+      </svg>
+    </button>
+
+    <!-- Last Page -->
+    <button
+      (click)="onLastClick()"
+      [disabled]="isLastPage()"
+      class="relative inline-flex items-center px-2 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-r-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+      title="Last page"
+    >
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"></path>
+      </svg>
+    </button>
+  </div>
+
+  <!-- Page Size Selector -->
+  <div *ngIf="showSizeSelector" class="flex items-center space-x-2">
+    <label for="pageSize" class="text-sm text-gray-700">Show:</label>
+    <select
+      id="pageSize"
+      [value]="pagination.limit"
+      (change)="onPageSizeChange($event)"
+      class="border border-gray-300 rounded-md text-sm focus:ring-blue-500 focus:border-blue-500"
+    >
+      <option *ngFor="let size of pageSizes" [value]="size">{{ size }}</option>
+    </select>
+    <span class="text-sm text-gray-700">per page</span>
+  </div>
+</div>

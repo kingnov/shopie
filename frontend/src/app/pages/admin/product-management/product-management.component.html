@@ -1,0 +1,409 @@
+<!-- Page Header -->
+<div class="mb-8">
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900">Product Management</h1>
+      <p class="mt-2 text-sm text-gray-700">Manage your product catalog, inventory, and pricing</p>
+    </div>
+    <div class="mt-4 sm:mt-0">
+      <button
+        (click)="openAddModal()"
+        class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+      >
+        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+        </svg>
+        Add Product
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Error Message -->
+<div *ngIf="error" class="mb-6 bg-red-50 border border-red-200 rounded-md p-4">
+  <div class="flex">
+    <svg class="w-5 h-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+    </svg>
+    <div class="ml-3">
+      <p class="text-sm text-red-800">{{ error }}</p>
+    </div>
+  </div>
+</div>
+
+<!-- Products Table -->
+<div class="bg-white shadow-sm rounded-lg">
+  <app-data-table
+    [data]="products"
+    [columns]="tableColumns"
+    [actions]="tableActions"
+    [loading]="loading"
+    [searchable]="true"
+    [sortable]="true"
+    (search)="onSearch($event)"
+    emptyMessage="No products found. Create your first product to get started."
+    loadingMessage="Loading products..."
+  ></app-data-table>
+
+  <!-- Pagination -->
+  <app-pagination
+    *ngIf="pagination"
+    [pagination]="pagination"
+    (pageChange)="onPageChange($event)"
+  ></app-pagination>
+</div>
+
+<!-- Add Product Modal -->
+<div *ngIf="showAddModal" class="fixed inset-0 z-50 overflow-y-auto">
+  <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+    <!-- Background overlay -->
+    <div class="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75 z-40" (click)="closeModals()"></div>
+
+    <!-- Modal panel with new styling -->
+    <div
+      class="inline-block w-full max-w-2xl p-0 my-8 overflow-hidden text-left align-middle transition-all transform bg-white shadow-xl rounded-lg z-50 relative"
+      style='font-family: Inter, "Noto Sans", sans-serif;'
+    >
+      <div class="flex flex-wrap justify-between gap-3 p-6 border-b">
+        <p class="text-[#111418] tracking-light text-[32px] font-bold leading-tight min-w-72">Add New Product</p>
+        <button (click)="closeModals()" class="text-gray-400 hover:text-gray-600">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+      <form (ngSubmit)="saveProduct($event)" class="flex flex-col items-center py-2">
+        <!-- Product Name -->
+        <div class="flex w-full max-w-[480px] flex-wrap items-end gap-4 px-4 py-3">
+          <label class="flex flex-col min-w-40 flex-1">
+            <p class="text-[#111418] text-base font-medium leading-normal pb-2">Product Name *</p>
+            <input
+              type="text"
+              placeholder="Enter product name"
+              [(ngModel)]="productForm.name"
+              name="name"
+              required
+              class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#111418] focus:outline-0 focus:ring-0 border-none bg-[#f0f2f5] focus:border-none h-14 placeholder:text-[#60758a] p-4 text-base font-normal leading-normal"
+            />
+          </label>
+        </div>
+        <!-- SKU and Category in grid -->
+        <div class="grid grid-cols-2 gap-4 w-full max-w-[480px] px-4 py-3">
+          <label class="flex flex-col min-w-40 flex-1">
+            <p class="text-[#111418] text-base font-medium leading-normal pb-2">SKU</p>
+            <input
+              type="text"
+              placeholder="Product SKU"
+              [(ngModel)]="productForm.sku"
+              name="sku"
+              class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#111418] focus:outline-0 focus:ring-0 border-none bg-[#f0f2f5] focus:border-none h-14 placeholder:text-[#60758a] p-4 text-base font-normal leading-normal"
+            />
+          </label>
+          <label class="flex flex-col min-w-40 flex-1">
+            <p class="text-[#111418] text-base font-medium leading-normal pb-2">Category</p>
+            <input
+              type="text"
+              placeholder="Product category"
+              [(ngModel)]="productForm.category"
+              name="category"
+              class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#111418] focus:outline-0 focus:ring-0 border-none bg-[#f0f2f5] focus:border-none h-14 placeholder:text-[#60758a] p-4 text-base font-normal leading-normal"
+            />
+          </label>
+        </div>
+        <!-- Short Description -->
+        <div class="flex w-full max-w-[480px] flex-wrap items-end gap-4 px-4 py-3">
+          <label class="flex flex-col min-w-40 flex-1">
+            <p class="text-[#111418] text-base font-medium leading-normal pb-2">Short Description *</p>
+            <input
+              type="text"
+              placeholder="Brief product description"
+              [(ngModel)]="productForm.shortDescription"
+              name="shortDescription"
+              required
+              class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#111418] focus:outline-0 focus:ring-0 border-none bg-[#f0f2f5] focus:border-none h-14 placeholder:text-[#60758a] p-4 text-base font-normal leading-normal"
+            />
+          </label>
+        </div>
+        <!-- Full Description -->
+        <div class="flex w-full max-w-[480px] flex-wrap items-end gap-4 px-4 py-3">
+          <label class="flex flex-col min-w-40 flex-1">
+            <p class="text-[#111418] text-base font-medium leading-normal pb-2">Full Description</p>
+            <textarea
+              rows="3"
+              placeholder="Detailed product description"
+              [(ngModel)]="productForm.description"
+              name="description"
+              class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#111418] focus:outline-0 focus:ring-0 border-none bg-[#f0f2f5] focus:border-none p-4 text-base font-normal leading-normal"
+            ></textarea>
+          </label>
+        </div>
+        <!-- Price and Stock in grid -->
+        <div class="grid grid-cols-2 gap-4 w-full max-w-[480px] px-4 py-3">
+          <label class="flex flex-col min-w-40 flex-1">
+            <p class="text-[#111418] text-base font-medium leading-normal pb-2">Price *</p>
+            <div class="relative">
+              <span class="absolute left-4 top-1/2 -translate-y-1/2 text-[#60758a]">$</span>
+              <input
+                type="number"
+                placeholder="0.00"
+                [(ngModel)]="productForm.price"
+                name="price"
+                required
+                min="0"
+                step="0.01"
+                class="form-input pl-8 flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#111418] focus:outline-0 focus:ring-0 border-none bg-[#f0f2f5] focus:border-none h-14 placeholder:text-[#60758a] p-4 text-base font-normal leading-normal"
+              />
+            </div>
+          </label>
+          <label class="flex flex-col min-w-40 flex-1">
+            <p class="text-[#111418] text-base font-medium leading-normal pb-2">Stock Quantity</p>
+            <input
+              type="number"
+              placeholder="0"
+              [(ngModel)]="productForm.stock"
+              name="stock"
+              min="0"
+              class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#111418] focus:outline-0 focus:ring-0 border-none bg-[#f0f2f5] focus:border-none h-14 placeholder:text-[#60758a] p-4 text-base font-normal leading-normal"
+            />
+          </label>
+        </div>
+        <!-- Image URL -->
+        <div class="flex w-full max-w-[480px] flex-wrap items-end gap-4 px-4 py-3">
+          <label class="flex flex-col min-w-40 flex-1">
+            <p class="text-[#111418] text-base font-medium leading-normal pb-2">Main Image URL *</p>
+            <input
+              type="url"
+              placeholder="https://example.com/image.jpg"
+              [(ngModel)]="productForm.imageUrl"
+              name="imageUrl"
+              required
+              class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#111418] focus:outline-0 focus:ring-0 border-none bg-[#f0f2f5] focus:border-none h-14 placeholder:text-[#60758a] p-4 text-base font-normal leading-normal"
+            />
+          </label>
+        </div>
+        <!-- Status -->
+        <div class="flex w-full max-w-[480px] items-center px-4 py-3">
+          <input
+            type="checkbox"
+            id="isActive"
+            [(ngModel)]="productForm.isActive"
+            name="isActive"
+            class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+          >
+          <label for="isActive" class="ml-2 block text-sm text-[#111418]">
+            Product is active and visible to customers
+          </label>
+        </div>
+        <!-- Form Actions -->
+        <div class="flex w-full max-w-[480px] px-4 py-3">
+          <button
+            type="button"
+            (click)="closeModals()"
+            class="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-[#f0f2f5] text-[#111418] text-sm font-bold leading-normal tracking-[0.015em] mr-2"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            [disabled]="!isFormValid() || loading"
+            class="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-[#0c7ff2] text-white text-sm font-bold leading-normal tracking-[0.015em] disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <span *ngIf="loading" class="inline-flex items-center">
+              <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              Creating...
+            </span>
+            <span *ngIf="!loading">Create Product</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Product Modal -->
+<div *ngIf="showEditModal" class="fixed inset-0 z-50 overflow-y-auto">
+  <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+    <!-- Background overlay -->
+    <div class="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75 z-40" (click)="closeModals()"></div>
+
+    <!-- Modal panel -->
+    <div class="inline-block w-full max-w-2xl p-6 my-8 overflow-hidden text-left align-middle transition-all transform bg-white shadow-xl rounded-lg z-50 relative">
+      <div class="flex items-center justify-between mb-6">
+        <h3 class="text-lg font-medium text-gray-900">Edit Product</h3>
+        <button (click)="closeModals()" class="text-gray-400 hover:text-gray-600">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Product Form (Same as Add Modal) -->
+      <form (ngSubmit)="saveProduct($event)" class="space-y-6">
+        <!-- Basic Information -->
+        <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+          <div>
+            <label for="edit-name" class="block text-sm font-medium text-gray-700">Product Name *</label>
+            <input
+              type="text"
+              id="edit-name"
+              [(ngModel)]="productForm.name"
+              name="name"
+              required
+              class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              placeholder="Enter product name"
+            >
+          </div>
+
+          <div>
+            <label for="edit-sku" class="block text-sm font-medium text-gray-700">SKU</label>
+            <input
+              type="text"
+              id="edit-sku"
+              [(ngModel)]="productForm.sku"
+              name="sku"
+              class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              placeholder="Product SKU"
+            >
+          </div>
+        </div>
+
+        <div>
+          <label for="edit-shortDescription" class="block text-sm font-medium text-gray-700">Short Description *</label>
+          <input
+            type="text"
+            id="edit-shortDescription"
+            [(ngModel)]="productForm.shortDescription"
+            name="shortDescription"
+            required
+            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+            placeholder="Brief product description"
+          >
+        </div>
+
+        <div>
+          <label for="edit-description" class="block text-sm font-medium text-gray-700">Full Description</label>
+          <textarea
+            id="edit-description"
+            [(ngModel)]="productForm.description"
+            name="description"
+            rows="3"
+            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+            placeholder="Detailed product description"
+          ></textarea>
+        </div>
+
+        <!-- Pricing and Inventory -->
+        <div class="grid grid-cols-1 gap-6 sm:grid-cols-3">
+          <div>
+            <label for="edit-price" class="block text-sm font-medium text-gray-700">Price *</label>
+            <div class="mt-1 relative rounded-md shadow-sm">
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <span class="text-gray-500 sm:text-sm">$</span>
+              </div>
+              <input
+                type="number"
+                id="edit-price"
+                [(ngModel)]="productForm.price"
+                name="price"
+                required
+                min="0"
+                step="0.01"
+                class="pl-7 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                placeholder="0.00"
+              >
+            </div>
+          </div>
+
+          <div>
+            <label for="edit-stock" class="block text-sm font-medium text-gray-700">Stock Quantity</label>
+            <input
+              type="number"
+              id="edit-stock"
+              [(ngModel)]="productForm.stock"
+              name="stock"
+              min="0"
+              class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              placeholder="0"
+            >
+          </div>
+
+          <div>
+            <label for="edit-category" class="block text-sm font-medium text-gray-700">Category</label>
+            <input
+              type="text"
+              id="edit-category"
+              [(ngModel)]="productForm.category"
+              name="category"
+              class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              placeholder="Product category"
+            >
+          </div>
+        </div>
+
+        <!-- Images -->
+        <div>
+          <label for="edit-imageUrl" class="block text-sm font-medium text-gray-700">Main Image URL *</label>
+          <input
+            type="url"
+            id="edit-imageUrl"
+            [(ngModel)]="productForm.imageUrl"
+            name="imageUrl"
+            required
+            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+            placeholder="https://example.com/image.jpg"
+          >
+        </div>
+
+        <!-- Status -->
+        <div class="flex items-center">
+          <input
+            type="checkbox"
+            id="edit-isActive"
+            [(ngModel)]="productForm.isActive"
+            name="isActive"
+            class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+          >
+          <label for="edit-isActive" class="ml-2 block text-sm text-gray-900">
+            Product is active and visible to customers
+          </label>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="flex justify-end space-x-3 pt-6 border-t border-gray-200">
+          <button
+            type="button"
+            (click)="closeModals()"
+            class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            [disabled]="!isFormValid() || loading"
+            class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <span *ngIf="loading" class="inline-flex items-center">
+              <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              Updating...
+            </span>
+            <span *ngIf="!loading">Update Product</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Confirm Dialog -->
+<app-confirm-dialog
+  *ngIf="showConfirmDialog"
+  [data]="confirmDialogData"
+  [onConfirm]="onConfirmDialogConfirm"
+  [onCancel]="onConfirmDialogCancel"
+></app-confirm-dialog>

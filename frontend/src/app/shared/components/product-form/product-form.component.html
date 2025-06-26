@@ -1,0 +1,269 @@
+<form [formGroup]="productForm" (ngSubmit)="onSubmit()" class="space-y-6">
+  <!-- Basic Information Section -->
+  <div class="form-section">
+    <h4 class="text-lg font-medium text-gray-900 mb-4">Basic Information</h4>
+    
+    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+      <!-- Product Name -->
+      <div>
+        <label for="name" class="block text-sm font-medium text-gray-700">
+          Product Name *
+        </label>
+        <input
+          type="text"
+          id="name"
+          formControlName="name"
+          [class]="'mt-1 block w-full border rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm ' + 
+                   (isFieldInvalid('name') ? 'border-red-300' : 'border-gray-300')"
+          placeholder="Enter product name"
+        >
+        <p *ngIf="isFieldInvalid('name')" class="mt-1 text-sm text-red-600">
+          {{ getFieldError('name') }}
+        </p>
+      </div>
+
+      <!-- SKU -->
+      <div>
+        <label for="sku" class="block text-sm font-medium text-gray-700">
+          SKU
+        </label>
+        <div class="mt-1 flex rounded-md shadow-sm">
+          <input
+            type="text"
+            id="sku"
+            formControlName="sku"
+            [class]="'flex-1 block w-full border rounded-l-md focus:ring-blue-500 focus:border-blue-500 sm:text-sm ' + 
+                     (isFieldInvalid('sku') ? 'border-red-300' : 'border-gray-300')"
+            placeholder="Product SKU"
+          >
+          <button
+            type="button"
+            (click)="generateSku()"
+            class="inline-flex items-center px-3 py-2 border border-l-0 border-gray-300 rounded-r-md bg-gray-50 text-gray-500 text-sm hover:bg-gray-100"
+          >
+            Generate
+          </button>
+        </div>
+        <p *ngIf="isFieldInvalid('sku')" class="mt-1 text-sm text-red-600">
+          {{ getFieldError('sku') }}
+        </p>
+      </div>
+    </div>
+
+    <!-- Short Description -->
+    <div>
+      <label for="shortDescription" class="block text-sm font-medium text-gray-700">
+        Short Description *
+      </label>
+      <input
+        type="text"
+        id="shortDescription"
+        formControlName="shortDescription"
+        [class]="'mt-1 block w-full border rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm ' + 
+                 (isFieldInvalid('shortDescription') ? 'border-red-300' : 'border-gray-300')"
+        placeholder="Brief product description (10-200 characters)"
+      >
+      <p *ngIf="isFieldInvalid('shortDescription')" class="mt-1 text-sm text-red-600">
+        {{ getFieldError('shortDescription') }}
+      </p>
+    </div>
+
+    <!-- Full Description -->
+    <div>
+      <label for="description" class="block text-sm font-medium text-gray-700">
+        Full Description
+      </label>
+      <textarea
+        id="description"
+        formControlName="description"
+        rows="4"
+        [class]="'mt-1 block w-full border rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm ' + 
+                 (isFieldInvalid('description') ? 'border-red-300' : 'border-gray-300')"
+        placeholder="Detailed product description (optional, max 1000 characters)"
+      ></textarea>
+      <p *ngIf="isFieldInvalid('description')" class="mt-1 text-sm text-red-600">
+        {{ getFieldError('description') }}
+      </p>
+    </div>
+  </div>
+
+  <!-- Pricing and Inventory Section -->
+  <div class="form-section">
+    <h4 class="text-lg font-medium text-gray-900 mb-4">Pricing & Inventory</h4>
+    
+    <div class="grid grid-cols-1 gap-6 sm:grid-cols-3">
+      <!-- Price -->
+      <div>
+        <label for="price" class="block text-sm font-medium text-gray-700">
+          Price *
+        </label>
+        <div class="mt-1 relative rounded-md shadow-sm">
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <span class="text-gray-500 sm:text-sm">$</span>
+          </div>
+          <input
+            type="number"
+            id="price"
+            formControlName="price"
+            min="0"
+            step="0.01"
+            (blur)="formatPrice($event)"
+            [class]="'pl-7 block w-full border rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm ' + 
+                     (isFieldInvalid('price') ? 'border-red-300' : 'border-gray-300')"
+            placeholder="0.00"
+          >
+        </div>
+        <p *ngIf="isFieldInvalid('price')" class="mt-1 text-sm text-red-600">
+          {{ getFieldError('price') }}
+        </p>
+      </div>
+
+      <!-- Stock -->
+      <div>
+        <label for="stock" class="block text-sm font-medium text-gray-700">
+          Stock Quantity *
+        </label>
+        <input
+          type="number"
+          id="stock"
+          formControlName="stock"
+          min="0"
+          [class]="'mt-1 block w-full border rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm ' + 
+                   (isFieldInvalid('stock') ? 'border-red-300' : 'border-gray-300')"
+          placeholder="0"
+        >
+        <p *ngIf="isFieldInvalid('stock')" class="mt-1 text-sm text-red-600">
+          {{ getFieldError('stock') }}
+        </p>
+      </div>
+
+      <!-- Category -->
+      <div>
+        <label for="category" class="block text-sm font-medium text-gray-700">
+          Category
+        </label>
+        <select
+          id="category"
+          formControlName="category"
+          class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+        >
+          <option value="">Select a category</option>
+          <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Images Section -->
+  <div class="form-section">
+    <h4 class="text-lg font-medium text-gray-900 mb-4">Images</h4>
+    
+    <!-- Main Image -->
+    <div>
+      <label for="imageUrl" class="block text-sm font-medium text-gray-700">
+        Main Image URL *
+      </label>
+      <input
+        type="url"
+        id="imageUrl"
+        formControlName="imageUrl"
+        [class]="'mt-1 block w-full border rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm ' + 
+                 (isFieldInvalid('imageUrl') ? 'border-red-300' : 'border-gray-300')"
+        placeholder="https://example.com/image.jpg"
+      >
+      <p *ngIf="isFieldInvalid('imageUrl')" class="mt-1 text-sm text-red-600">
+        {{ getFieldError('imageUrl') }}
+      </p>
+      
+      <!-- Image Preview -->
+      <div *ngIf="imagePreview" class="mt-3">
+        <p class="text-sm text-gray-700 mb-2">Preview:</p>
+        <img
+          [src]="imagePreview"
+          alt="Product preview"
+          class="w-32 h-32 object-cover rounded-lg border border-gray-300"
+          (error)="onImageError($event)"
+        >
+      </div>
+    </div>
+
+    <!-- Additional Images -->
+    <div class="mt-6">
+      <div class="flex items-center justify-between mb-3">
+        <label class="block text-sm font-medium text-gray-700">
+          Additional Images
+        </label>
+        <button
+          type="button"
+          (click)="addAdditionalImage()"
+          class="inline-flex items-center px-3 py-1 border border-transparent text-sm font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200"
+        >
+          <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+          </svg>
+          Add Image
+        </button>
+      </div>
+      
+      <div *ngIf="additionalImages.length > 0" class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <div *ngFor="let image of additionalImages; let i = index" class="relative">
+          <img
+            [src]="image"
+            alt="Additional image"
+            class="w-full h-24 object-cover rounded-lg border border-gray-300"
+            (error)="onImageError($event)"
+          >
+          <button
+            type="button"
+            (click)="removeAdditionalImage(i)"
+            class="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center text-xs hover:bg-red-600"
+          >
+            ×
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Status Section -->
+  <div class="form-section">
+    <h4 class="text-lg font-medium text-gray-900 mb-4">Status</h4>
+    
+    <div class="flex items-center">
+      <input
+        type="checkbox"
+        id="isActive"
+        formControlName="isActive"
+        class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+      >
+      <label for="isActive" class="ml-2 block text-sm text-gray-900">
+        Product is active and visible to customers
+      </label>
+    </div>
+  </div>
+
+  <!-- Form Actions -->
+  <div class="flex justify-end space-x-3 pt-6 border-t border-gray-200">
+    <button
+      type="button"
+      (click)="onCancel()"
+      class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+    >
+      Cancel
+    </button>
+    <button
+      type="submit"
+      [disabled]="!isFormValid || loading"
+      class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+    >
+      <span *ngIf="loading" class="inline-flex items-center">
+        <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+        Saving...
+      </span>
+      <span *ngIf="!loading">{{ submitButtonText }}</span>
+    </button>
+  </div>
+</form>

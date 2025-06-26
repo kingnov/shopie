@@ -1,0 +1,173 @@
+/* Admin Overview Component Styles */
+
+/* Card hover effects */
+.bg-white.shadow {
+  transition: all 0.15s ease-in-out;
+}
+
+.bg-white.shadow:hover {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+/* Quick action cards */
+.group.relative {
+  transition: all 0.2s ease-in-out;
+}
+
+.group.relative:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* Loading spinner animation */
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Metric cards */
+.grid > div {
+  transition: transform 0.2s ease-in-out;
+}
+
+.grid > div:hover {
+  transform: scale(1.02);
+}
+
+/* Category cards */
+.bg-gray-50 {
+  transition: background-color 0.15s ease-in-out;
+}
+
+.bg-gray-50:hover {
+  background-color: #f3f4f6;
+}
+
+/* Icon styling */
+.rounded-lg.inline-flex {
+  transition: all 0.2s ease-in-out;
+}
+
+.group:hover .rounded-lg.inline-flex {
+  transform: scale(1.1);
+}
+
+/* Progress indicators */
+.text-green-600 {
+  color: #059669;
+}
+
+.text-yellow-600 {
+  color: #d97706;
+}
+
+.text-red-600 {
+  color: #dc2626;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .grid-cols-4 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  
+  .grid-cols-3 {
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+  }
+  
+  .text-2xl {
+    font-size: 1.5rem;
+  }
+}
+
+/* Focus styles for accessibility */
+a:focus,
+button:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* Error state styling */
+.bg-red-50 {
+  background-color: #fef2f2;
+}
+
+/* Empty state styling */
+.text-gray-500 {
+  color: #6b7280;
+}
+
+/* Card content spacing */
+.p-5 {
+  padding: 1.25rem;
+}
+
+.p-6 {
+  padding: 1.5rem;
+}
+
+/* Flex utilities */
+.flex-shrink-0 {
+  flex-shrink: 0;
+}
+
+.w-0.flex-1 {
+  flex: 1 1 0%;
+  width: 0;
+}
+
+/* Typography */
+.text-lg.font-medium {
+  font-weight: 500;
+  font-size: 1.125rem;
+}
+
+.text-sm.font-medium {
+  font-weight: 500;
+  font-size: 0.875rem;
+}
+
+/* Spacing utilities */
+.space-y-8 > * + * {
+  margin-top: 2rem;
+}
+
+.space-y-4 > * + * {
+  margin-top: 1rem;
+}
+
+/* Border utilities */
+.border-gray-200 {
+  border-color: #e5e7eb;
+}
+
+.border-gray-300 {
+  border-color: #d1d5db;
+}
+
+/* Ring utilities for focus states */
+.focus-within\:ring-2:focus-within {
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
+}
+
+/* Disabled state */
+.opacity-50 {
+  opacity: 0.5;
+}
+
+.cursor-not-allowed {
+  cursor: not-allowed;
+}
+
+/* Smooth transitions for all interactive elements */
+* {
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}

@@ -1,0 +1,405 @@
+### Enhanced Authentication Features Test Suite
+### This file tests all the enhanced authentication features including
+### token refresh, notifications, profile management, and error handling
+
+### Variables
+@baseUrl = http://localhost:3000
+@apiUrl = {{baseUrl}}/api
+@authUrl = {{apiUrl}}/auth
+@userUrl = {{apiUrl}}/user
+
+### Test User Data
+@enhancedTestEmail = enhanced-test@example.com
+@enhancedTestPassword = enhancedtest123
+@enhancedTestFirstName = Enhanced
+@enhancedTestLastName = Tester
+@enhancedTestPhone = +1987654321
+
+### Headers
+@contentType = Content-Type: application/json
+
+### Test Tokens (will be updated during testing)
+@accessToken = 
+@refreshedToken = 
+
+###############################################################################
+# ENHANCED REGISTRATION TESTS
+###############################################################################
+
+### 1. Register User with Complete Profile Data
+POST {{authUrl}}/register
+Content-Type: application/json
+
+{
+  "email": "{{enhancedTestEmail}}",
+  "password": "{{enhancedTestPassword}}",
+  "firstName": "{{enhancedTestFirstName}}",
+  "lastName": "{{enhancedTestLastName}}",
+  "phone": "{{enhancedTestPhone}}"
+}
+
+### 2. Test Registration with Notification System
+# This should trigger success notification in frontend
+POST {{authUrl}}/register
+Content-Type: application/json
+
+{
+  "email": "notification-test@example.com",
+  "password": "{{enhancedTestPassword}}",
+  "firstName": "Notification",
+  "lastName": "Test"
+}
+
+### 3. Test Registration Error Handling
+# This should trigger error notification for duplicate email
+POST {{authUrl}}/register
+Content-Type: application/json
+
+{
+  "email": "{{enhancedTestEmail}}",
+  "password": "{{enhancedTestPassword}}"
+}
+
+###############################################################################
+# ENHANCED LOGIN TESTS
+###############################################################################
+
+### 4. Login with Enhanced User
+POST {{authUrl}}/login
+Content-Type: application/json
+
+{
+  "email": "{{enhancedTestEmail}}",
+  "password": "{{enhancedTestPassword}}"
+}
+
+### 5. Test Login Error Handling
+# This should trigger error notification
+POST {{authUrl}}/login
+Content-Type: application/json
+
+{
+  "email": "{{enhancedTestEmail}}",
+  "password": "wrongpassword"
+}
+
+###############################################################################
+# TOKEN REFRESH TESTS
+###############################################################################
+
+### 6. Test Token Refresh with Valid Token
+# NOTE: Update @accessToken with token from successful login above
+POST {{authUrl}}/refresh
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{}
+
+### 7. Test Token Refresh with Invalid Token
+POST {{authUrl}}/refresh
+Authorization: Bearer invalid.token.here
+Content-Type: application/json
+
+{}
+
+### 8. Test Token Refresh with Expired Token
+# This simulates what happens when a token is expired
+POST {{authUrl}}/refresh
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImVtYWlsIjoidGVzdEBleGFtcGxlLmNvbSIsInJvbGUiOiJDVVNUT01FUiIsImlhdCI6MTYwMDAwMDAwMCwiZXhwIjoxNjAwMDAwMDAwfQ.invalid
+Content-Type: application/json
+
+{}
+
+###############################################################################
+# PROFILE MANAGEMENT TESTS
+###############################################################################
+
+### 9. Get User Profile
+GET {{userUrl}}/profile
+Authorization: Bearer {{accessToken}}
+Accept: application/json
+
+### 10. Update User Profile - Complete Update
+PATCH {{userUrl}}/profile
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "firstName": "Updated Enhanced",
+  "lastName": "Updated Tester",
+  "phone": "+1555123456"
+}
+
+### 11. Update User Profile - Partial Update
+PATCH {{userUrl}}/profile
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "firstName": "Partially Updated"
+}
+
+### 12. Update User Profile - Invalid Data
+# This should trigger validation errors
+PATCH {{userUrl}}/profile
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "firstName": "",
+  "phone": "invalid-phone"
+}
+
+### 13. Update User Profile - Unauthorized
+# This should fail without proper token
+PATCH {{userUrl}}/profile
+Content-Type: application/json
+
+{
+  "firstName": "Unauthorized Update"
+}
+
+###############################################################################
+# PASSWORD CHANGE TESTS
+###############################################################################
+
+### 14. Change Password - Valid Request
+POST {{userUrl}}/change-password
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "currentPassword": "{{enhancedTestPassword}}",
+  "newPassword": "newenhancedpassword123"
+}
+
+### 15. Test Login with New Password
+POST {{authUrl}}/login
+Content-Type: application/json
+
+{
+  "email": "{{enhancedTestEmail}}",
+  "password": "newenhancedpassword123"
+}
+
+### 16. Change Password - Wrong Current Password
+POST {{userUrl}}/change-password
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "currentPassword": "wrongcurrentpassword",
+  "newPassword": "anothernewpassword123"
+}
+
+### 17. Change Password - Invalid New Password
+POST {{userUrl}}/change-password
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "currentPassword": "newenhancedpassword123",
+  "newPassword": "123"
+}
+
+### 18. Change Password - Unauthorized
+POST {{userUrl}}/change-password
+Content-Type: application/json
+
+{
+  "currentPassword": "newenhancedpassword123",
+  "newPassword": "unauthorizedchange123"
+}
+
+###############################################################################
+# ENHANCED ERROR HANDLING TESTS
+###############################################################################
+
+### 19. Test Network Error Simulation
+# This tests how the frontend handles network errors
+GET http://localhost:9999/api/auth/login
+Content-Type: application/json
+
+### 20. Test Server Error Simulation
+# This tests 500 error handling
+POST {{authUrl}}/login
+Content-Type: application/json
+
+{
+  "email": null,
+  "password": null
+}
+
+### 21. Test Validation Error Handling
+# This tests 400 validation errors
+POST {{authUrl}}/register
+Content-Type: application/json
+
+{
+  "email": "invalid-email-format",
+  "password": "123"
+}
+
+### 22. Test Unauthorized Access
+# This tests 401 error handling
+GET {{userUrl}}/profile
+Authorization: Bearer expired.or.invalid.token
+Accept: application/json
+
+### 23. Test Forbidden Access
+# This tests 403 error handling (if admin endpoints exist)
+GET {{apiUrl}}/admin/users
+Authorization: Bearer {{accessToken}}
+Accept: application/json
+
+###############################################################################
+# NOTIFICATION SYSTEM TESTS
+###############################################################################
+
+### 24. Test Success Notification Trigger
+# Successful login should trigger success notification
+POST {{authUrl}}/login
+Content-Type: application/json
+
+{
+  "email": "{{enhancedTestEmail}}",
+  "password": "newenhancedpassword123"
+}
+
+### 25. Test Error Notification Trigger
+# Failed login should trigger error notification
+POST {{authUrl}}/login
+Content-Type: application/json
+
+{
+  "email": "{{enhancedTestEmail}}",
+  "password": "wrongpassword"
+}
+
+### 26. Test Profile Update Success Notification
+PATCH {{userUrl}}/profile
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "firstName": "Notification Test"
+}
+
+### 27. Test Password Change Success Notification
+POST {{userUrl}}/change-password
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "currentPassword": "newenhancedpassword123",
+  "newPassword": "finalpassword123"
+}
+
+###############################################################################
+# AUTOMATIC TOKEN REFRESH TESTS
+###############################################################################
+
+### 28. Test Automatic Token Refresh on API Call
+# This simulates what happens when the interceptor refreshes tokens
+GET {{userUrl}}/profile
+Authorization: Bearer {{accessToken}}
+Accept: application/json
+
+### 29. Test Multiple Rapid API Calls
+# This tests if token refresh works with concurrent requests
+GET {{userUrl}}/profile
+Authorization: Bearer {{accessToken}}
+Accept: application/json
+
+### 30. Test Token Refresh Failure Handling
+# This tests what happens when refresh fails
+POST {{authUrl}}/refresh
+Authorization: Bearer completely.invalid.token.that.will.fail
+Content-Type: application/json
+
+{}
+
+###############################################################################
+# SECURITY AND EDGE CASE TESTS
+###############################################################################
+
+### 31. Test SQL Injection in Profile Update
+PATCH {{userUrl}}/profile
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "firstName": "'; DROP TABLE users; --",
+  "lastName": "Injection Test"
+}
+
+### 32. Test XSS in Profile Update
+PATCH {{userUrl}}/profile
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "firstName": "<script>alert('xss')</script>",
+  "lastName": "XSS Test"
+}
+
+### 33. Test Large Payload
+PATCH {{userUrl}}/profile
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "firstName": "A".repeat(10000),
+  "lastName": "Large Payload Test"
+}
+
+### 34. Test Special Characters in Profile
+PATCH {{userUrl}}/profile
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "firstName": "José María",
+  "lastName": "González-Pérez",
+  "phone": "+34 123 456 789"
+}
+
+### 35. Test Unicode Characters
+PATCH {{userUrl}}/profile
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "firstName": "测试用户",
+  "lastName": "тестовый пользователь"
+}
+
+###############################################################################
+# PERFORMANCE TESTS
+###############################################################################
+
+### 36. Test Rapid Login Attempts
+# This tests rate limiting (if implemented)
+POST {{authUrl}}/login
+Content-Type: application/json
+
+{
+  "email": "{{enhancedTestEmail}}",
+  "password": "wrongpassword"
+}
+
+### 37. Test Concurrent Profile Updates
+PATCH {{userUrl}}/profile
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "firstName": "Concurrent Test 1"
+}
+
+### 38. Test Token Refresh Under Load
+POST {{authUrl}}/refresh
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{}

@@ -1,0 +1,119 @@
+/* Enhanced glassmorphic effects */
+nav {
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+/* Smooth transitions for all interactive elements */
+nav a, nav button {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Enhanced hover effects */
+nav a:hover {
+  transform: translateY(-1px);
+}
+
+/* Profile image hover effect */
+nav img:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* Search input enhancements */
+input[type="text"] {
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+input[type="text"]:focus {
+  transform: scale(1.02);
+  box-shadow: 0 4px 20px rgba(59, 130, 246, 0.15);
+}
+
+/* Mobile menu animations */
+.mobile-menu-enter {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+
+.mobile-menu-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: all 0.3s ease-out;
+}
+
+/* Cart badge pulse animation */
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.8; }
+}
+
+.cart-badge {
+  animation: pulse 2s infinite;
+}
+
+/* Scrolled state enhancements */
+.navbar-scrolled {
+  border-radius: 0 0 24px 24px;
+  margin: 0 8px;
+  width: calc(100% - 16px);
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 768px) {
+  .navbar-scrolled {
+    margin: 0;
+    width: 100%;
+    border-radius: 0;
+  }
+}
+
+/* Loading shimmer effect for profile image */
+.profile-image-loading {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* Enhanced backdrop blur for better browser compatibility */
+@supports (backdrop-filter: blur(20px)) {
+  nav {
+    backdrop-filter: blur(20px) saturate(180%);
+  }
+}
+
+@supports not (backdrop-filter: blur(20px)) {
+  nav {
+    background: rgba(255, 255, 255, 0.9);
+  }
+}
+
+/* Mobile overlay glassmorphic effect */
+.fixed.inset-0.bg-white\/60 {
+  background: rgba(255,255,255,0.6);
+  backdrop-filter: blur(18px) saturate(180%);
+  -webkit-backdrop-filter: blur(18px) saturate(180%);
+}
+
+/* Cart badge indicator (dot) */
+.cart-badge {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 9999px;
+  background: #3b82f6;
+  display: inline-block;
+  animation: pulse 2s infinite;
+  border: 2px solid #fff;
+}
+
+/* Remove extra white space below navbar */
+body, main, .flex-grow {
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+}

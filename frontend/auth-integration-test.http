@@ -1,0 +1,282 @@
+### Frontend Authentication Integration Tests
+### This file tests the frontend-backend authentication integration
+### Make sure both backend (port 3000) and frontend (port 4200) are running
+
+### Variables
+@baseUrl = http://localhost:3000
+@apiUrl = {{baseUrl}}/api
+@authUrl = {{apiUrl}}/auth
+@frontendUrl = http://localhost:4200
+
+### Headers
+@contentType = Content-Type: application/json
+
+# Test tokens - these will be updated during testing
+@testAccessToken = 
+@testUserId = 
+@testEmail = test-integration@example.com
+@testPassword = testpassword123
+
+###############################################################################
+# HEALTH CHECK
+###############################################################################
+
+### 1. Backend Health Check
+GET {{baseUrl}}/health
+Accept: application/json
+
+### 2. Frontend Health Check (if you have a health endpoint)
+GET {{frontendUrl}}
+Accept: text/html
+
+###############################################################################
+# REGISTRATION FLOW TESTS
+###############################################################################
+
+### 3. Register New User (Frontend Integration)
+POST {{authUrl}}/register
+Content-Type: application/json
+
+{
+  "email": "{{testEmail}}",
+  "password": "{{testPassword}}",
+  "firstName": "Test",
+  "lastName": "User",
+  "phone": "+1234567890"
+}
+
+### 4. Register with Minimal Data (Email + Password only)
+POST {{authUrl}}/register
+Content-Type: application/json
+
+{
+  "email": "minimal@test.com",
+  "password": "password123"
+}
+
+### 5. Try to Register with Duplicate Email (Should Fail)
+POST {{authUrl}}/register
+Content-Type: application/json
+
+{
+  "email": "{{testEmail}}",
+  "password": "{{testPassword}}"
+}
+
+### 6. Register with Invalid Email (Should Fail)
+POST {{authUrl}}/register
+Content-Type: application/json
+
+{
+  "email": "invalid-email",
+  "password": "{{testPassword}}"
+}
+
+### 7. Register with Short Password (Should Fail)
+POST {{authUrl}}/register
+Content-Type: application/json
+
+{
+  "email": "shortpass@test.com",
+  "password": "123"
+}
+
+###############################################################################
+# LOGIN FLOW TESTS
+###############################################################################
+
+### 8. Login with Valid Credentials
+POST {{authUrl}}/login
+Content-Type: application/json
+
+{
+  "email": "{{testEmail}}",
+  "password": "{{testPassword}}"
+}
+
+### 9. Login with Invalid Email (Should Fail)
+POST {{authUrl}}/login
+Content-Type: application/json
+
+{
+  "email": "nonexistent@test.com",
+  "password": "{{testPassword}}"
+}
+
+### 10. Login with Invalid Password (Should Fail)
+POST {{authUrl}}/login
+Content-Type: application/json
+
+{
+  "email": "{{testEmail}}",
+  "password": "wrongpassword"
+}
+
+### 11. Login with Missing Fields (Should Fail)
+POST {{authUrl}}/login
+Content-Type: application/json
+
+{
+  "email": "{{testEmail}}"
+}
+
+###############################################################################
+# PASSWORD RESET FLOW TESTS
+###############################################################################
+
+### 12. Request Password Reset
+POST {{authUrl}}/forgot-password
+Content-Type: application/json
+
+{
+  "email": "{{testEmail}}"
+}
+
+### 13. Request Password Reset for Non-existent Email (Should Still Return Success)
+POST {{authUrl}}/forgot-password
+Content-Type: application/json
+
+{
+  "email": "nonexistent@test.com"
+}
+
+### 14. Request Password Reset with Invalid Email Format (Should Fail)
+POST {{authUrl}}/forgot-password
+Content-Type: application/json
+
+{
+  "email": "invalid-email"
+}
+
+### 15. Reset Password with Valid Token
+# NOTE: You need to get the reset token from the backend logs or email
+# and update the @resetToken variable below
+@resetToken = UPDATE_THIS_WITH_ACTUAL_TOKEN
+
+POST {{authUrl}}/reset-password
+Content-Type: application/json
+
+{
+  "token": "{{resetToken}}",
+  "newPassword": "newpassword123"
+}
+
+### 16. Reset Password with Invalid Token (Should Fail)
+POST {{authUrl}}/reset-password
+Content-Type: application/json
+
+{
+  "token": "invalid.token.here",
+  "newPassword": "newpassword123"
+}
+
+### 17. Reset Password with Short Password (Should Fail)
+POST {{authUrl}}/reset-password
+Content-Type: application/json
+
+{
+  "token": "{{resetToken}}",
+  "newPassword": "123"
+}
+
+###############################################################################
+# AUTHENTICATED REQUESTS TESTS
+###############################################################################
+
+### 18. Test Protected Route without Token (Should Fail)
+GET {{apiUrl}}/user/profile
+Accept: application/json
+
+### 19. Test Protected Route with Valid Token
+# NOTE: Update @testAccessToken with a valid token from login response
+GET {{apiUrl}}/user/profile
+Authorization: Bearer {{testAccessToken}}
+Accept: application/json
+
+### 20. Test Protected Route with Invalid Token (Should Fail)
+GET {{apiUrl}}/user/profile
+Authorization: Bearer invalid.token.here
+Accept: application/json
+
+### 21. Test Admin Route with Customer Token (Should Fail)
+GET {{apiUrl}}/admin/users
+Authorization: Bearer {{testAccessToken}}
+Accept: application/json
+
+###############################################################################
+# ROLE-BASED ACCESS TESTS
+###############################################################################
+
+### 22. Login as Admin User
+POST {{authUrl}}/login
+Content-Type: application/json
+
+{
+  "email": "jkkimunyi@gmail.com",
+  "password": "admin123"
+}
+
+### 23. Test Admin Route with Admin Token
+# NOTE: Update @adminAccessToken with admin token from above login
+@adminAccessToken = UPDATE_WITH_ADMIN_TOKEN
+
+GET {{apiUrl}}/admin/users
+Authorization: Bearer {{adminAccessToken}}
+Accept: application/json
+
+###############################################################################
+# ERROR HANDLING TESTS
+###############################################################################
+
+### 24. Test Malformed JSON (Should Fail)
+POST {{authUrl}}/login
+Content-Type: application/json
+
+{
+  "email": "test@test.com",
+  "password": "password123",
+}
+
+### 25. Test Wrong Content-Type (Should Fail)
+POST {{authUrl}}/login
+Content-Type: text/plain
+
+{
+  "email": "test@test.com",
+  "password": "password123"
+}
+
+### 26. Test SQL Injection Attempt (Should be Safe)
+POST {{authUrl}}/login
+Content-Type: application/json
+
+{
+  "email": "'; DROP TABLE users; --",
+  "password": "password123"
+}
+
+### 27. Test XSS Attempt (Should be Safe)
+POST {{authUrl}}/register
+Content-Type: application/json
+
+{
+  "email": "<script>alert('xss')</script>@test.com",
+  "password": "password123",
+  "firstName": "<script>alert('xss')</script>"
+}
+
+###############################################################################
+# FRONTEND SPECIFIC TESTS
+###############################################################################
+
+### 28. Test CORS Headers
+OPTIONS {{authUrl}}/login
+Origin: {{frontendUrl}}
+Access-Control-Request-Method: POST
+Access-Control-Request-Headers: Content-Type
+
+### 29. Test Preflight Request
+OPTIONS {{authUrl}}/register
+Origin: {{frontendUrl}}
+Access-Control-Request-Method: POST
+Access-Control-Request-Headers: Content-Type,Authorization

@@ -1,0 +1,238 @@
+<div class="min-h-screen bg-gray-50 py-8">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="flex justify-center items-center min-h-96">
+      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="error && !isLoading" class="text-center py-12">
+      <div class="bg-red-50 border border-red-200 rounded-lg p-6 max-w-md mx-auto">
+        <svg class="mx-auto h-12 w-12 text-red-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+        </svg>
+        <h3 class="text-lg font-medium text-red-800 mb-2">Error</h3>
+        <p class="text-red-600">{{ error }}</p>
+        <button (click)="goBack()"
+                class="mt-4 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors">
+          Back to Products
+        </button>
+      </div>
+    </div>
+
+    <!-- Product Details -->
+    <div *ngIf="product && !isLoading && !error" class="bg-white rounded-lg shadow-lg overflow-hidden">
+
+      <!-- Breadcrumb -->
+      <div class="bg-gray-50 px-6 py-3 border-b">
+        <nav class="flex" aria-label="Breadcrumb">
+          <ol class="flex items-center space-x-4">
+            <li>
+              <a routerLink="/" class="text-gray-500 hover:text-gray-700">Home</a>
+            </li>
+            <li>
+              <svg class="flex-shrink-0 h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+              </svg>
+            </li>
+            <li>
+              <a routerLink="/products" class="text-gray-500 hover:text-gray-700">Products</a>
+            </li>
+            <li>
+              <svg class="flex-shrink-0 h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+              </svg>
+            </li>
+            <li>
+              <span class="text-gray-900 font-medium">{{ product.name }}</span>
+            </li>
+          </ol>
+        </nav>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 p-6">
+
+        <!-- Product Image -->
+        <div class="space-y-4">
+          <div class="aspect-square bg-gray-100 rounded-lg overflow-hidden">
+            <img
+              [src]="product.imageUrl || 'assets/images/placeholder.png'"
+              [alt]="product.name"
+              class="w-full h-full object-cover"
+              (error)="onImageError($event)"
+            >
+          </div>
+
+          <!-- Additional product images could go here -->
+          <div class="grid grid-cols-4 gap-2">
+            <!-- Placeholder for additional images -->
+            <div class="aspect-square bg-gray-100 rounded border-2 border-blue-500">
+              <img
+                [src]="product.imageUrl || 'assets/images/placeholder.png'"
+                [alt]="product.name"
+                class="w-full h-full object-cover rounded"
+                (error)="onImageError($event)"
+              >
+            </div>
+          </div>
+        </div>
+
+        <!-- Product Information -->
+        <div class="space-y-6">
+
+          <!-- Product Title and Price -->
+          <div>
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">{{ product.name }}</h1>
+            <div class="flex items-center space-x-4 mb-4">
+              <span class="text-3xl font-bold text-blue-600">Kshs {{ product.price.toFixed(2) }}</span>
+              <span
+                [class]="product.stock > 0 ? 'text-green-600 bg-green-100' : 'text-red-600 bg-red-100'"
+                class="px-3 py-1 rounded-full text-sm font-medium"
+              >
+                {{ product.stock > 0 ? 'In Stock (' + product.stock + ' available)' : 'Out of Stock' }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Product Description -->
+          <div>
+            <h3 class="text-lg font-semibold text-gray-900 mb-2">Description</h3>
+            <p class="text-gray-600 leading-relaxed">{{ product.shortDescription }}</p>
+          </div>
+
+          <!-- Product Specifications -->
+          <div>
+            <h3 class="text-lg font-semibold text-gray-900 mb-3">Specifications</h3>
+            <div class="bg-gray-50 rounded-lg p-4 space-y-2">
+              <div class="flex justify-between">
+                <span class="text-gray-600">Product ID:</span>
+                <span class="font-medium">#{{ product.id }}</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-gray-600">Availability:</span>
+                <span class="font-medium">{{ product.isActive ? 'Available' : 'Discontinued' }}</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-gray-600">Stock Quantity:</span>
+                <span class="font-medium">{{ product.stock }} units</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-gray-600">Added:</span>
+                <span class="font-medium">{{ product.createdAt | date:'mediumDate' }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quantity Selector and Add to Cart -->
+          <div *ngIf="product.isActive" class="space-y-4">
+
+            <!-- Quantity Selector -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Quantity</label>
+              <div class="flex items-center space-x-3">
+                <button
+                  (click)="decreaseQuantity()"
+                  [disabled]="quantity <= 1"
+                  class="w-10 h-10 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path>
+                  </svg>
+                </button>
+
+                <input
+                  type="number"
+                  [(ngModel)]="quantity"
+                  [min]="1"
+                  [max]="product.stock"
+                  class="w-20 text-center border border-gray-300 rounded-md py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                >
+
+                <button
+                  (click)="increaseQuantity()"
+                  [disabled]="quantity >= product.stock"
+                  class="w-10 h-10 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                  </svg>
+                </button>
+
+                <span class="text-sm text-gray-500 ml-4">
+                  {{ product.stock }} available
+                </span>
+              </div>
+            </div>
+
+            <!-- Add to Cart Button -->
+            <div class="space-y-3">
+              <button
+                *ngIf="isAuthenticated"
+                (click)="addToCart()"
+                [disabled]="isAddingToCart || product.stock === 0 || quantity > product.stock"
+                class="w-full bg-blue-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center"
+              >
+                <svg *ngIf="isAddingToCart" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <svg *ngIf="!isAddingToCart" class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.5 6M7 13l-1.5 6m0 0h9"></path>
+                </svg>
+                {{ isAddingToCart ? 'Adding to Cart...' : 'Add to Cart' }}
+              </button>
+
+              <button
+                *ngIf="!isAuthenticated"
+                routerLink="/auth/login"
+                class="w-full bg-gray-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-gray-700 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors"
+              >
+                Sign in to Add to Cart
+              </button>
+
+              <!-- Total Price Display -->
+              <div class="bg-gray-50 rounded-lg p-4">
+                <div class="flex justify-between items-center">
+                  <span class="text-lg font-medium text-gray-900">Total:</span>
+                  <span class="text-2xl font-bold text-blue-600">
+                    Kshs {{ (product.price * quantity).toFixed(2) }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Out of Stock Message -->
+          <div *ngIf="!product.isActive || product.stock === 0" class="bg-red-50 border border-red-200 rounded-lg p-4">
+            <div class="flex items-center">
+              <svg class="w-5 h-5 text-red-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+              </svg>
+              <span class="text-red-800 font-medium">
+                {{ !product.isActive ? 'This product is no longer available' : 'This product is currently out of stock' }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="flex space-x-4 pt-4 border-t">
+            <button
+              (click)="goBack()"
+              class="flex-1 bg-gray-200 text-gray-800 py-2 px-4 rounded-lg font-medium hover:bg-gray-300 transition-colors"
+            >
+              Back to Products
+            </button>
+            <button
+              routerLink="/products"
+              class="flex-1 bg-blue-100 text-blue-800 py-2 px-4 rounded-lg font-medium hover:bg-blue-200 transition-colors"
+            >
+              Continue Shopping
+            </button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

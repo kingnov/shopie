@@ -1,0 +1,322 @@
+### Frontend Authentication Component Tests
+### This file contains tests specifically for frontend authentication components
+### These tests simulate what the Angular frontend components will send to the backend
+
+### Variables
+@baseUrl = http://localhost:3000
+@apiUrl = {{baseUrl}}/api
+@authUrl = {{apiUrl}}/auth
+@userUrl = {{apiUrl}}/user
+
+### Test User Data
+@testEmail = frontend-test@example.com
+@testPassword = frontendtest123
+@testFirstName = Frontend
+@testLastName = Tester
+@testPhone = +1234567890
+
+### Headers
+@contentType = Content-Type: application/json
+
+###############################################################################
+# REGISTRATION COMPONENT TESTS
+###############################################################################
+
+### 1. Test Registration Form Submission (Complete Form)
+# This simulates what the RegisterComponent sends
+POST {{authUrl}}/register
+Content-Type: application/json
+
+{
+  "email": "{{testEmail}}",
+  "password": "{{testPassword}}",
+  "firstName": "{{testFirstName}}",
+  "lastName": "{{testLastName}}",
+  "phone": "{{testPhone}}"
+}
+
+### 2. Test Registration Form Submission (Minimal Form)
+# This simulates registration with only required fields
+POST {{authUrl}}/register
+Content-Type: application/json
+
+{
+  "email": "minimal-frontend@test.com",
+  "password": "{{testPassword}}"
+}
+
+### 3. Test Registration Form Validation Errors
+# This should trigger validation errors that the frontend will display
+POST {{authUrl}}/register
+Content-Type: application/json
+
+{
+  "email": "invalid-email",
+  "password": "123"
+}
+
+###############################################################################
+# LOGIN COMPONENT TESTS
+###############################################################################
+
+### 4. Test Login Form Submission (Valid Credentials)
+# This simulates what the LoginComponent sends
+POST {{authUrl}}/login
+Content-Type: application/json
+
+{
+  "email": "{{testEmail}}",
+  "password": "{{testPassword}}"
+}
+
+### 5. Test Login Form Submission (Invalid Credentials)
+# This should trigger error handling in the frontend
+POST {{authUrl}}/login
+Content-Type: application/json
+
+{
+  "email": "{{testEmail}}",
+  "password": "wrongpassword"
+}
+
+### 6. Test Login Form Validation
+# This should trigger frontend validation errors
+POST {{authUrl}}/login
+Content-Type: application/json
+
+{
+  "email": "invalid-email",
+  "password": "123"
+}
+
+###############################################################################
+# FORGOT PASSWORD COMPONENT TESTS
+###############################################################################
+
+### 7. Test Forgot Password Form Submission (Valid Email)
+# This simulates what the ForgotPasswordComponent sends
+POST {{authUrl}}/forgot-password
+Content-Type: application/json
+
+{
+  "email": "{{testEmail}}"
+}
+
+### 8. Test Forgot Password Form Submission (Invalid Email)
+# This should trigger validation errors
+POST {{authUrl}}/forgot-password
+Content-Type: application/json
+
+{
+  "email": "invalid-email"
+}
+
+### 9. Test Forgot Password Form Submission (Non-existent Email)
+# This should still return success (security best practice)
+POST {{authUrl}}/forgot-password
+Content-Type: application/json
+
+{
+  "email": "nonexistent@test.com"
+}
+
+###############################################################################
+# RESET PASSWORD COMPONENT TESTS
+###############################################################################
+
+### 10. Test Reset Password Form Submission
+# NOTE: You need to get a valid reset token from the backend logs
+# Update the @resetToken variable below with the actual token
+@resetToken = UPDATE_THIS_WITH_ACTUAL_RESET_TOKEN
+
+POST {{authUrl}}/reset-password
+Content-Type: application/json
+
+{
+  "token": "{{resetToken}}",
+  "newPassword": "newpassword123"
+}
+
+### 11. Test Reset Password with Invalid Token
+# This should trigger error handling in the frontend
+POST {{authUrl}}/reset-password
+Content-Type: application/json
+
+{
+  "token": "invalid.token.here",
+  "newPassword": "newpassword123"
+}
+
+### 12. Test Reset Password with Short Password
+# This should trigger validation errors
+POST {{authUrl}}/reset-password
+Content-Type: application/json
+
+{
+  "token": "{{resetToken}}",
+  "newPassword": "123"
+}
+
+###############################################################################
+# AUTH SERVICE TESTS
+###############################################################################
+
+### 13. Test User Profile Update
+# This simulates what the AuthService.updateProfile() method sends
+# NOTE: Update @accessToken with a valid token from login response
+@accessToken = UPDATE_WITH_VALID_ACCESS_TOKEN
+
+PATCH {{userUrl}}/profile
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "firstName": "Updated",
+  "lastName": "Name",
+  "phone": "+9876543210"
+}
+
+### 14. Test Change Password
+# This simulates what the AuthService.changePassword() method sends
+POST {{userUrl}}/change-password
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "currentPassword": "{{testPassword}}",
+  "newPassword": "newpassword456"
+}
+
+### 15. Test Get User Profile
+# This simulates what the AuthService might call to get user data
+GET {{userUrl}}/profile
+Authorization: Bearer {{accessToken}}
+Accept: application/json
+
+###############################################################################
+# AUTH GUARD TESTS
+###############################################################################
+
+### 16. Test Protected Route Access (Valid Token)
+# This simulates what happens when AuthGuard allows access
+GET {{userUrl}}/profile
+Authorization: Bearer {{accessToken}}
+Accept: application/json
+
+### 17. Test Protected Route Access (No Token)
+# This simulates what happens when AuthGuard denies access
+GET {{userUrl}}/profile
+Accept: application/json
+
+### 18. Test Protected Route Access (Invalid Token)
+# This simulates what happens when AuthGuard denies access due to invalid token
+GET {{userUrl}}/profile
+Authorization: Bearer invalid.token.here
+Accept: application/json
+
+###############################################################################
+# ADMIN GUARD TESTS
+###############################################################################
+
+### 19. Login as Admin for Admin Guard Tests
+POST {{authUrl}}/login
+Content-Type: application/json
+
+{
+  "email": "jkkimunyi@gmail.com",
+  "password": "admin123"
+}
+
+### 20. Test Admin Route Access (Admin Token)
+# NOTE: Update @adminToken with admin token from above login
+@adminToken = UPDATE_WITH_ADMIN_TOKEN
+
+GET {{apiUrl}}/admin/users
+Authorization: Bearer {{adminToken}}
+Accept: application/json
+
+### 21. Test Admin Route Access (Customer Token)
+# This should be denied by AdminGuard
+GET {{apiUrl}}/admin/users
+Authorization: Bearer {{accessToken}}
+Accept: application/json
+
+###############################################################################
+# AUTH INTERCEPTOR TESTS
+###############################################################################
+
+### 22. Test Automatic Token Attachment
+# The AuthInterceptor should automatically add the Bearer token
+# This simulates any authenticated request from the frontend
+GET {{userUrl}}/profile
+Authorization: Bearer {{accessToken}}
+Accept: application/json
+
+### 23. Test 401 Error Handling
+# This simulates what happens when the AuthInterceptor receives a 401
+GET {{userUrl}}/profile
+Authorization: Bearer expired.or.invalid.token
+Accept: application/json
+
+###############################################################################
+# FRONTEND ERROR SCENARIOS
+###############################################################################
+
+### 24. Test Network Error Simulation
+# This simulates what happens when the backend is unreachable
+GET http://localhost:9999/api/auth/login
+Content-Type: application/json
+
+### 25. Test Timeout Simulation
+# This simulates a slow network request
+GET {{authUrl}}/login
+Content-Type: application/json
+
+### 26. Test Large Payload
+# This tests how the frontend handles large responses
+POST {{authUrl}}/register
+Content-Type: application/json
+
+{
+  "email": "large-payload@test.com",
+  "password": "{{testPassword}}",
+  "firstName": "A".repeat(1000),
+  "lastName": "B".repeat(1000),
+  "phone": "{{testPhone}}"
+}
+
+###############################################################################
+# FRONTEND STATE MANAGEMENT TESTS
+###############################################################################
+
+### 27. Test Login State Persistence
+# After this login, the frontend should store user data and token
+POST {{authUrl}}/login
+Content-Type: application/json
+
+{
+  "email": "{{testEmail}}",
+  "password": "{{testPassword}}"
+}
+
+### 28. Test Authenticated Request After Login
+# This should work if the frontend properly stored the token
+GET {{userUrl}}/profile
+Authorization: Bearer {{accessToken}}
+Accept: application/json
+
+### 29. Test Token Refresh Scenario
+# This simulates what happens when a token is about to expire
+# NOTE: This assumes you implement token refresh functionality
+POST {{authUrl}}/refresh
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{}
+
+### 30. Test Logout Cleanup
+# After logout, subsequent requests should fail
+# This is more of a frontend state test, but we can verify the token is invalid
+GET {{userUrl}}/profile
+Authorization: Bearer {{accessToken}}
+Accept: application/json

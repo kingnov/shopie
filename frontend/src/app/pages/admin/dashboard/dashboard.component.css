@@ -1,0 +1,138 @@
+/* Admin Dashboard Styles */
+
+/* Sidebar animations */
+.transform {
+  transition: transform 0.3s ease-in-out;
+}
+
+/* Navigation hover effects */
+nav a {
+  transition: all 0.2s ease-in-out;
+}
+
+nav a:hover {
+  transform: translateX(2px);
+}
+
+/* Active navigation item */
+nav a.bg-blue-50 {
+  box-shadow: inset 4px 0 0 #2563eb;
+  background: linear-gradient(90deg, #eff6ff 0%, #dbeafe 100%);
+}
+
+/* Sidebar styling enhancements */
+.sidebar {
+  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Header gradient */
+.header-gradient {
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+}
+
+/* Mobile sidebar backdrop */
+.bg-opacity-75 {
+  backdrop-filter: blur(4px);
+}
+
+/* Header shadow */
+header {
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+}
+
+/* Breadcrumb styling */
+nav[aria-label="Breadcrumb"] a:hover {
+  text-decoration: underline;
+}
+
+/* Button hover effects */
+button {
+  transition: all 0.15s ease-in-out;
+}
+
+button:hover {
+  transform: translateY(-1px);
+}
+
+/* User avatar */
+.w-8.h-8.bg-blue-600 {
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+  .lg\:pl-64 {
+    padding-left: 0;
+  }
+}
+
+/* Focus styles for accessibility */
+button:focus,
+a:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* Smooth transitions for all interactive elements */
+* {
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Sidebar scroll styling */
+nav {
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
+}
+
+nav::-webkit-scrollbar {
+  width: 6px;
+}
+
+nav::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+nav::-webkit-scrollbar-thumb {
+  background-color: #cbd5e1;
+  border-radius: 3px;
+}
+
+/* Main content area */
+main {
+  min-height: calc(100vh - 4rem);
+}
+
+/* Loading states */
+.loading {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+/* Animation for sidebar toggle */
+@keyframes slideIn {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideOut {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+/* Ensure proper z-index stacking */
+.z-40 {
+  z-index: 40;
+}
+
+.z-50 {
+  z-index: 50;
+}

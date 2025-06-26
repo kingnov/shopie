@@ -1,0 +1,400 @@
+<div class="container mx-auto px-4 py-8">
+  <!-- Hero Section -->
+  <!-- Updated Hero Section -->
+  <div class="container mx-auto px-4 py-8">
+  <!-- Hero Section -->
+  <div class="relative w-full text-white text-sm font-medium bg-gradient-to-r from-purple-700 via-indigo-600 to-blue-600 text-center py-4 rounded-lg mb-8 shadow-lg animate-pulse">
+    🎉 <span class="font-semibold">Big Savings Alert!</span> Get up to <span class="font-bold text-yellow-300">50% OFF</span> on selected items.
+    <a routerLink="/products" class="underline hover:text-gray-100 ml-2 font-semibold">Shop Must-Haves</a>
+  </div>
+
+  <div class="flex flex-col lg:flex-row items-center gap-8 lg:gap-16 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 lg:py-20 bg-white/80 backdrop-blur-sm rounded-xl shadow-2xl border border-gray-200">
+    <!-- Left Content -->
+    <div class="flex flex-col gap-4 lg:gap-6 text-left lg:w-1/2 order-2 lg:order-1">
+      <span class="text-sm font-semibold uppercase tracking-wider text-[#6a0dad]">Special Discount</span>
+      <h1 class="text-[#181111] text-4xl sm:text-5xl md:text-6xl font-black leading-tight tracking-tighter">
+        Own Your Elegance
+      </h1>
+      <p class="text-gray-600 text-base sm:text-lg leading-relaxed">
+        Uncover fresh trends and forever pieces you’ll always love.
+        <span class="font-semibold text-[#6a0dad]">15% OFF</span>
+        Hot styles dropping fast — elevate your outfit game.
+      </p>
+      <a
+        routerLink="/products"
+        class="inline-flex items-center justify-center h-12 sm:h-14 px-6 sm:px-8 bg-gradient-to-br from-purple-700 to-indigo-600 text-white text-base sm:text-lg font-bold rounded-lg shadow-md hover:shadow-xl hover:scale-105 transform transition-all duration-300 ease-in-out"
+      >
+        <span class="truncate">Shop Collection</span>
+        <svg class="ml-2 transition-transform duration-300 group-hover:translate-x-1" fill="currentColor" height="20" viewBox="0 0 256 256" width="20">
+          <path d="M221.66,133.66l-72,72a8,8,0,0,1-11.32-11.32L202.69,132H40a8,8,0,0,1,0-16H202.69l-64.35-64.34a8,8,0,0,1,11.32-11.32l72,72A8,8,0,0,1,221.66,133.66Z" />
+        </svg>
+      </a>
+    </div>
+
+    <div class="w-full lg:w-1/2 bg-center bg-no-repeat bg-cover rounded-xl shadow-2xl border border-gray-200 order-1 lg:order-2 aspect-square sm:aspect-video lg:aspect-[4/3] min-h-[300px] sm:min-h-[400px]"
+         style="background-image: url('https://source.unsplash.com/QJEVpydulGs/1000x800');">
+    </div>
+  </div>
+
+  <!-- Continue your homepage content below -->
+</div>
+
+
+  <div class="relative">
+    <div [class.blur-sm]="isLoading" [class.pointer-events-none]="isLoading">
+      <!-- Loading and Error States -->
+      <div *ngIf="isLoading" class="text-center py-8">
+        <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mb-4"></div>
+        <p class="loading-pulse">Retrieving Catalog...</p>
+      </div>
+      
+      <div *ngIf="error" class="bg-red-100 border border-blue-400 text-blue-800 px-4 py-3 rounded mb-4">
+        {{ error }}
+      </div>
+
+      <!-- Featured Products Section -->
+      <div *ngIf="!isLoading && !error && featuredProducts.length > 0" class="mb-12">
+        <div class="flex justify-between items-center mb-6">
+          <h2 class="text-2xl font-bold section-header">Categories</h2>
+          <a routerLink="/products" class="text-blue-600 hover:underline">View All</a>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          <div *ngFor="let product of featuredProducts" class=" rounded-lg overflow-hidden shadow-sm product-card">
+            <img
+              [src]="product.imageUrl || 'assets/images/placeholder.png'"
+              [alt]="product.name"
+              class="w-full h-48 object-cover product-image"
+              (error)="onImageError($event)"
+            >
+            <div class="absolute top-4 right-4 bg-green-500 text-white text-xs font-semibold px-3 py-1 rounded-full shadow-md">
+                In Stock
+            </div>
+
+            
+            <div class="p-4">
+              <h3 class="font-semibold text-lg mb-2 line-clamp-1">{{ product.name }}</h3>
+              <p class="text-gray-600 mb-2 line-clamp-2">{{ product.shortDescription }}</p>
+              <div class="flex justify-between items-center mb-3">
+                <span class="font-bold text-blue-600">Kshs. {{ product.price.toFixed(2) }}</span>
+                <span class="text-sm text-gray-500">{{ product.stock }} left</span>
+              </div>
+
+              <!-- Action Buttons -->
+              <div class="flex gap-2">
+                <a
+                  [routerLink]="['/products', product.id]"
+                  class="flex-1 bg-blue-600 text-white text-center py-2 px-3 rounded-md hover:bg-blue-700 transition-colors text-sm font-medium"
+                >
+                  View Details
+                </a>
+                <button
+                  *ngIf="product.stock > 0"
+                  (click)="addToCart(product)"
+                  [disabled]="addingToCartProductId === product.id"
+                  class="bg-green-600 text-white px-3 py-2 rounded-md hover:bg-green-700 transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                  [title]="isAuthenticated ? 'Add to Cart' : 'Sign in to Add to Cart'"
+                >
+                  <svg *ngIf="addingToCartProductId !== product.id" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.5 6M7 13l-1.5 6m0 0h9"></path>
+                  </svg>
+                  <svg *ngIf="addingToCartProductId === product.id" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="!isLoading && !error && featuredProducts.length > 0" class="mb-12">
+        <div class="flex justify-between items-center mb-6">
+          <h2 class="text-2xl font-bold section-header">Featured Products</h2>
+          <a routerLink="/products" class="text-blue-600 hover:underline">View All</a>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          <div *ngFor="let product of featuredProducts" class="rounded-lg overflow-hidden shadow-sm product-card">
+            <img
+              [src]="product.imageUrl || 'assets/images/placeholder.png'"
+              [alt]="product.name"
+              class="w-full h-48 object-cover product-image"
+              (error)="onImageError($event)"
+            >
+
+            <div class="absolute top-4 right-4 bg-green-500 text-white text-xs font-semibold px-3 py-1 rounded-full shadow-md">
+                In Stock
+            </div>
+
+            <div class="p-4">
+              <h3 class="font-semibold text-lg mb-2 line-clamp-1">{{ product.name }}</h3>
+              <p class="text-gray-600 mb-2 line-clamp-2">{{ product.shortDescription }}</p>
+              <div class="flex justify-between items-center mb-3">
+                <span class="font-bold text-blue-600">Kshs. {{ product.price.toFixed(2) }}</span>
+                <span class="text-sm text-gray-500">{{ product.stock }} left</span>
+              </div>
+
+              <!-- Action Buttons -->
+              <div class="flex gap-2">
+                <a
+                  [routerLink]="['/products', product.id]"
+                  class="flex-1 bg-blue-600 text-white text-center py-2 px-3 rounded-md hover:bg-blue-700 transition-colors text-sm font-medium"
+                >
+                  View Details
+                </a>
+                <button
+                  *ngIf="product.stock > 0"
+                  (click)="addToCart(product)"
+                  [disabled]="addingToCartProductId === product.id"
+                  class="bg-green-600 text-white px-3 py-2 rounded-md hover:bg-green-700 transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                  [title]="isAuthenticated ? 'Add to Cart' : 'Sign in to Add to Cart'"
+                >
+                  <svg *ngIf="addingToCartProductId !== product.id" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.5 6M7 13l-1.5 6m0 0h9"></path>
+                  </svg>
+                  <svg *ngIf="addingToCartProductId === product.id" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="!isLoading && !error && featuredProducts.length > 0" class="mb-12">
+        <div class="flex justify-between items-center mb-6">
+          <h2 class="text-2xl font-bold section-header">Featured Products</h2>
+          <a routerLink="/products" class="text-blue-600 hover:underline">View All</a>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          <div *ngFor="let product of featuredProducts" class="rounded-lg overflow-hidden shadow-sm product-card">
+            <img
+              [src]="product.imageUrl || 'assets/images/placeholder.png'"
+              [alt]="product.name"
+              class="w-full h-48 object-cover product-image"
+              (error)="onImageError($event)"
+            >
+            <div class="absolute top-4 right-4 bg-green-500 text-white text-xs font-semibold px-3 py-1 rounded-full shadow-md">
+                In Stock
+            </div>
+
+            <div class="p-4">
+              <h3 class="font-semibold text-lg mb-2 line-clamp-1">{{ product.name }}</h3>
+              <p class="text-gray-600 mb-2 line-clamp-2">{{ product.shortDescription }}</p>
+              <div class="flex justify-between items-center mb-3">
+                <span class="font-bold text-blue-600">Kshs. {{ product.price.toFixed(2) }}</span>
+                <span class="text-sm text-gray-500">{{ product.stock }} left</span>
+              </div>
+
+              <!-- Action Buttons -->
+              <div class="flex gap-2">
+                <a
+                  [routerLink]="['/products', product.id]"
+                  class="flex-1 bg-blue-600 text-white text-center py-2 px-3 rounded-md hover:bg-blue-700 transition-colors text-sm font-medium"
+                >
+                  View Details
+                </a>
+                <button
+                  *ngIf="product.stock > 0"
+                  (click)="addToCart(product)"
+                  [disabled]="addingToCartProductId === product.id"
+                  class="bg-green-600 text-white px-3 py-2 rounded-md hover:bg-green-700 transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                  [title]="isAuthenticated ? 'Add to Cart' : 'Sign in to Add to Cart'"
+                >
+                  <svg *ngIf="addingToCartProductId !== product.id" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.5 6M7 13l-1.5 6m0 0h9"></path>
+                  </svg>
+                  <svg *ngIf="addingToCartProductId === product.id" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- New Arrivals Section -->
+      <div *ngIf="!isLoading && !error && newArrivals.length > 0" class="mb-12">
+        <div class="flex justify-between items-center mb-6">
+          <h2 class="text-2xl font-bold section-header">New Arrivals</h2>
+          <a routerLink="/products" class="text-blue-600 hover:underline">View All</a>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          <div *ngFor="let product of newArrivals" class="border rounded-lg overflow-hidden shadow-sm product-card">
+            <img
+              [src]="product.imageUrl || 'assets/images/placeholder.png'"
+              [alt]="product.name"
+              class="w-full h-48 object-cover product-image"
+              (error)="onImageError($event)"
+            >
+            <div class="p-4">
+              <h3 class="font-semibold text-lg mb-2 line-clamp-1">{{ product.name }}</h3>
+              <p class="text-gray-600 mb-2 line-clamp-2">{{ product.shortDescription }}</p>
+              <div class="flex justify-between items-center mb-3">
+                <span class="font-bold text-blue-600">${{ product.price.toFixed(2) }}</span>
+                <span class="text-sm text-gray-500">{{ product.stock }} left</span>
+              </div>
+
+              <!-- Action Buttons -->
+              <div class="flex gap-2">
+                <a
+                  [routerLink]="['/products', product.id]"
+                  class="flex-1 bg-blue-600 text-white text-center py-2 px-3 rounded-md hover:bg-blue-700 transition-colors text-sm font-medium"
+                >
+                  View Details
+                </a>
+                <button
+                  *ngIf="product.stock > 0"
+                  (click)="addToCart(product)"
+                  [disabled]="addingToCartProductId === product.id"
+                  class="bg-green-600 text-white px-3 py-2 rounded-md hover:bg-green-700 transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                  [title]="isAuthenticated ? 'Add to Cart' : 'Sign in to Add to Cart'"
+                >
+                  <svg *ngIf="addingToCartProductId !== product.id" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.5 6M7 13l-1.5 6m0 0h9"></path>
+                  </svg>
+                  <svg *ngIf="addingToCartProductId === product.id" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <section class="py-16 px-6 md:px-10 " id="testimonials">
+      <div class="max-w-5xl mx-auto">
+      <h2 class="text-[#1b120e] text-3xl font-bold leading-tight tracking-tight mb-12 text-center">Our customers' Feedback</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+
+        <div class="flex flex-col gap-4 bg-white p-6 rounded-xl shadow-lg border border-[#f3ebe7]">
+  <div class="flex items-center gap-3">
+    <img 
+      alt="Sophia Njeri" 
+      class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-12 border-2 border-[#4c1d95]" 
+      src="https://randomuser.me/api/portraits/women/44.jpg" 
+    />
+    <div class="flex-1">
+      <p class="text-[#1b120e] text-lg font-semibold leading-normal">Melany Wambui</p>
+      <p class=" text-blue-600 text-sm font-normal leading-normal">Frequent Buyer</p>
+    </div>
+  </div>
+  <p class="text-[#4e3f37] text-base font-normal leading-relaxed">
+    "Stylish, affordable, and super fast delivery. Totally exceeded my expectations!"
+  </p>
+</div>
+     
+<div class="flex flex-col gap-4 bg-white p-6 rounded-xl shadow-lg border border-[#f3ebe7]">
+  <div class="flex items-center gap-3">
+    <img 
+      alt="Kelvin Otieno" 
+      class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-12 border-2 border-[#4c1d95]" 
+      src="https://randomuser.me/api/portraits/men/32.jpg" 
+    />
+    <div class="flex-1">
+      <p class="text-[#1b120e] text-lg font-semibold leading-normal">Kelvin Otieno</p>
+      <p class=" text-blue-600 text-sm font-normal leading-normal">Verified Buyer</p>
+    </div>
+  </div>
+  <p class="text-[#4e3f37] text-base font-normal leading-relaxed">
+    "Easy to order, great quality, and prices that make sense."
+  </p>
+</div>
+
+      <div class="flex flex-col gap-4 bg-white p-6 rounded-xl shadow-lg border border-[#f3ebe7]">
+      <div class="flex items-center gap-3">
+      <img alt="Marco Bianchi" class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-12 border-2 border-[#4c1d95]" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB8mr3aHgKXCSamC__sB0mZF58PEPa36iQb4td7INmCEn7e0fSI7PwXw0iHRLHPTiTtNGTsU4kWTeEqDDJKzp8ZyPhTRKPIPbuRRGZhxjsUPG3DnV88GGyzix5cnaZ0vwTHeOqGr63fL18YvcTpqC01lrJhSHFz_SvY7M1vLqlFZ1u_fb_VAMU8fUeCt3dezQe6WmldmiqrlFvBtDD3AFel2Dt91v1Y_pxpdbwB3KqM92v9iAysX8Tgn66_hZbfDvA1pDs62cLHI3I"/>
+      <div class="flex-1">
+      <p class="text-[#1b120e] text-lg font-semibold leading-normal">Keith Brian</p>
+      <p class=" text-blue-600 text-sm font-normal leading-normal">Customer</p>
+      </div>
+      </div>
+      <div class="flex gap-0.5 text-[#ce5316]">
+      
+      </div>
+      <p class="text-[#4e3f37] text-base font-normal leading-relaxed">
+                          "Absolute best value for my money. I would recommend it to everyone"
+                        </p>
+      </div>
+    
+      <div class="flex flex-col gap-4 bg-white p-6 rounded-xl shadow-lg border border-[#f3ebe7]">
+  <div class="flex items-center gap-3">
+    <img 
+      alt="Harison Munene" 
+      class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-12 border-2 border-[#4c1d95]" 
+      src="https://images.unsplash.com/photo-1607746882042-944635dfe10e?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80"
+    />
+    <div class="flex-1">
+      <p class="text-[#1b120e] text-lg font-semibold leading-normal">Harison Munene</p>
+      <p class=" text-blue-600 text-sm font-normal leading-normal">Customers</p>
+    </div>
+  </div>
+  <div class="flex gap-0.5 text-[#ce5316]">
+    <!-- Optional rating or icons could go here -->
+  </div>
+  <p class="text-[#4e3f37] text-base font-normal leading-relaxed">
+    "This shop offered best value for my money. I would recommend it to everyone who is looking to shop"
+  </p>
+</div>
+<div class="flex flex-col gap-4 bg-white p-6 rounded-xl shadow-lg border border-[#f3ebe7]">
+  <div class="flex items-center gap-3">
+    <img 
+      alt="Kelvin Otieno" 
+      class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-12 border-2 border-[#4c1d95]" 
+      src="https://randomuser.me/api/portraits/men/32.jpg" 
+    />
+    <div class="flex-1">
+      <p class="text-[#1b120e] text-lg font-semibold leading-normal">Kelvin Otieno</p>
+      <p class=" text-blue-600 text-sm font-normal leading-normal">Verified Buyer</p>
+    </div>
+  </div>
+  <p class="text-[#4e3f37] text-base font-normal leading-relaxed">
+    "Easy to order, great quality, and prices that make sense."
+  </p>
+</div>
+
+<div class="flex flex-col gap-4 bg-white p-6 rounded-xl shadow-lg border border-[#f3ebe7]">
+  <div class="flex items-center gap-3">
+    <img 
+      alt="Sophia Njeri" 
+      class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-12 border-2 border-[#4c1d95]" 
+      src="https://randomuser.me/api/portraits/women/44.jpg" 
+    />
+    <div class="flex-1">
+      <p class="text-[#1b120e] text-lg font-semibold leading-normal">Sophia Njeri</p>
+      <p class=" text-blue-600 text-sm font-normal leading-normal">Frequent Buyer</p>
+    </div>
+  </div>
+  <p class="text-[#4e3f37] text-base font-normal leading-relaxed">
+    "Stylish, affordable, and super fast delivery. Totally exceeded my expectations!"
+  </p>
+</div>
+
+
+   
+      </div>
+      </div>
+      </section>
+
+      <app-offer-dialog
+        *ngIf="showOfferDialog && offerProduct"
+        [product]="offerProduct"
+        [show]="showOfferDialog"
+        (close)="closeOfferDialog()"
+      ></app-offer-dialog>
+    </div>
+    <div *ngIf="isLoading" class="absolute inset-0 flex items-center justify-center z-40 bg-white/40 backdrop-blur-sm">
+      <div class="inline-block animate-spin rounded-full h-16 w-16 border-b-4 border-blue-600"></div>
+    </div>
+  </div>
+</div>

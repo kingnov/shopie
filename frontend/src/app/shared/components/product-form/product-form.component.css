@@ -1,0 +1,243 @@
+/* Product Form Component Styles */
+
+/* Form section styling */
+.form-section {
+  padding-bottom: 1.5rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.form-section:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+/* Input focus styles */
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+/* Error state styling */
+.border-red-300 {
+  border-color: #fca5a5;
+}
+
+.border-red-300:focus {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+/* Button hover effects */
+button {
+  transition: all 0.15s ease-in-out;
+}
+
+button:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Generate SKU button styling */
+.bg-gray-50:hover {
+  background-color: #f9fafb;
+}
+
+/* Image preview styling */
+.w-32.h-32 {
+  transition: transform 0.2s ease-in-out;
+}
+
+.w-32.h-32:hover {
+  transform: scale(1.05);
+}
+
+/* Additional images grid */
+.grid-cols-4 > div {
+  position: relative;
+}
+
+.grid-cols-4 img {
+  transition: opacity 0.2s ease-in-out;
+}
+
+.grid-cols-4 img:hover {
+  opacity: 0.8;
+}
+
+/* Remove image button */
+.absolute.-top-2.-right-2 {
+  transition: all 0.15s ease-in-out;
+}
+
+.absolute.-top-2.-right-2:hover {
+  transform: scale(1.1);
+}
+
+/* Loading spinner animation */
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Form validation styling */
+.text-red-600 {
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+}
+
+/* Checkbox styling */
+input[type="checkbox"]:checked {
+  background-color: #3b82f6;
+  border-color: #3b82f6;
+}
+
+input[type="checkbox"]:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* Select dropdown styling */
+select {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right 0.5rem center;
+  background-repeat: no-repeat;
+  background-size: 1.5em 1.5em;
+  padding-right: 2.5rem;
+}
+
+/* Disabled state styling */
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Price input styling */
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .grid-cols-2 {
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+  }
+  
+  .grid-cols-3 {
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+  }
+  
+  .grid-cols-4 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  
+  .space-x-3 > * + * {
+    margin-left: 0.5rem;
+  }
+}
+
+/* Label styling */
+label {
+  font-weight: 500;
+  color: #374151;
+}
+
+/* Required field indicator */
+label:after {
+  content: "";
+}
+
+/* Placeholder styling */
+::placeholder {
+  color: #9ca3af;
+  opacity: 1;
+}
+
+/* Focus visible for accessibility */
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* Section headers */
+h4 {
+  color: #111827;
+  font-weight: 600;
+}
+
+/* Image upload area styling */
+.border-dashed {
+  border-style: dashed;
+}
+
+/* Error message animation */
+.text-red-600 {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Success state styling */
+.border-green-300 {
+  border-color: #86efac;
+}
+
+.border-green-300:focus {
+  border-color: #22c55e;
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
+}
+
+/* Form container */
+form {
+  max-width: none;
+}
+
+/* Input group styling */
+.flex.rounded-md.shadow-sm input {
+  border-right: none;
+}
+
+.flex.rounded-md.shadow-sm button {
+  border-left: none;
+}
+
+/* Character count styling */
+.character-count {
+  font-size: 0.75rem;
+  color: #6b7280;
+  text-align: right;
+  margin-top: 0.25rem;
+}

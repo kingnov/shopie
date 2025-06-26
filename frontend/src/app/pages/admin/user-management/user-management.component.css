@@ -1,0 +1,145 @@
+/* User Management Component Styles */
+
+/* Custom styles for user management specific elements */
+.user-avatar {
+  @apply w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center text-sm font-medium text-gray-700;
+}
+
+.role-badge {
+  @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+}
+
+.role-badge.admin {
+  @apply bg-purple-100 text-purple-800;
+}
+
+.role-badge.customer {
+  @apply bg-blue-100 text-blue-800;
+}
+
+/* Form validation styles */
+.form-field.invalid input,
+.form-field.invalid select,
+.form-field.invalid textarea {
+  @apply border-red-300 focus:border-red-500 focus:ring-red-500;
+}
+
+.form-field.invalid .field-error {
+  @apply text-red-600 text-sm mt-1;
+}
+
+/* Loading states */
+.loading-overlay {
+  @apply absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center;
+}
+
+.loading-spinner {
+  @apply animate-spin h-8 w-8 text-blue-600;
+}
+
+/* Table enhancements */
+.user-table .table-row:hover {
+  @apply bg-gray-50;
+}
+
+.user-table .user-email {
+  @apply font-medium text-gray-900;
+}
+
+.user-table .user-name {
+  @apply text-gray-600;
+}
+
+.user-table .user-phone {
+  @apply text-gray-500 text-sm;
+}
+
+/* Modal enhancements */
+.modal-backdrop {
+  backdrop-filter: blur(4px);
+}
+
+.modal-panel {
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .user-management-header {
+    @apply flex-col space-y-4;
+  }
+  
+  .user-management-header .header-actions {
+    @apply w-full;
+  }
+  
+  .user-management-header .header-actions button {
+    @apply w-full justify-center;
+  }
+  
+  .user-filters {
+    @apply grid-cols-1 gap-2;
+  }
+  
+  .modal-panel {
+    @apply mx-4 my-4 max-w-none;
+  }
+}
+
+/* Animation enhancements */
+.fade-in {
+  animation: fadeIn 0.2s ease-in-out;
+}
+
+.slide-up {
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Focus states */
+.focus-ring {
+  @apply focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500;
+}
+
+/* Custom scrollbar for modals */
+.modal-content {
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e0 #f7fafc;
+}
+
+.modal-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.modal-content::-webkit-scrollbar-track {
+  background: #f7fafc;
+  border-radius: 3px;
+}
+
+.modal-content::-webkit-scrollbar-thumb {
+  background: #cbd5e0;
+  border-radius: 3px;
+}
+
+.modal-content::-webkit-scrollbar-thumb:hover {
+  background: #a0aec0;
+}
